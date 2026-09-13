@@ -1,0 +1,150 @@
+/* ============================================================
+   Neural Network Visualizer — Global Stylesheet
+   Phase 1: Design tokens, base styles, and Tailwind directives.
+   ============================================================ */
+
+/* Google Fonts — must come before @tailwind directives (PostCSS rule) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------
+   CSS Custom Properties — design tokens for both themes
+   --------------------------------------------------------------- */
+:root {
+  /* Light theme */
+  --bg-primary:   #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card:      #ffffff;
+  --bg-elevated:  #ffffff;
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+  --border-color:   #e2e8f0;
+  --accent:         #6366f1;
+  --accent-hover:   #4f46e5;
+}
+
+.dark {
+  /* Dark theme */
+  --bg-primary:   #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-card:      #16213e;
+  --bg-elevated:  #1e293b;
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+  --border-color:   #1e2d4a;
+  --accent:         #6366f1;
+  --accent-hover:   #818cf8;
+}
+
+/* ---------------------------------------------------------------
+   Base
+   --------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Scrollbars — styled for dark and light
+   --------------------------------------------------------------- */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ---------------------------------------------------------------
+   Component helpers
+   --------------------------------------------------------------- */
+@layer components {
+  /* Card surface */
+  .card {
+    @apply rounded-xl border p-4 transition-all duration-200;
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold
+           text-white transition-all duration-150 focus:outline-none focus:ring-2
+           focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50
+           disabled:cursor-not-allowed;
+    background-color: var(--accent);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+    box-shadow: 0 0 12px rgba(99,102,241,0.4);
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+           transition-all duration-150 focus:outline-none focus:ring-2
+           focus:ring-brand-500 focus:ring-offset-1;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    background: transparent;
+  }
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  /* Status badge */
+  .badge-online  { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-400; }
+  .badge-offline { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-red-500/15 text-red-400; }
+  .badge-loading { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-amber-500/15 text-amber-400; }
+
+  /* Monospace label */
+  .mono { @apply font-mono text-xs; }
+
+  /* Page heading */
+  .page-title {
+    @apply text-2xl font-bold tracking-tight;
+    color: var(--text-primary);
+  }
+
+  .page-subtitle {
+    @apply text-sm mt-1;
+    color: var(--text-secondary);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Utility extras
+   --------------------------------------------------------------- */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #a855f7 100%);
+  }
+}
