@@ -19,6 +19,8 @@ interface NavbarProps {
 
 const TABS: { id: AppTab; label: string }[] = [
   { id: 'recognize', label: 'Recognize' },
+  { id: 'compare',   label: 'Compare'   },
+  { id: 'cnn',       label: 'CNN'       },
   { id: 'network',   label: 'Network'   },
   { id: 'training',  label: 'Training'  },
   { id: 'dataset',   label: 'Dataset'   },

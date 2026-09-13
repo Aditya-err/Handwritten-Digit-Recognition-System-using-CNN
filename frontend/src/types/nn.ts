@@ -44,11 +44,11 @@ export interface NetworkArchitecture {
 // Prediction (Phase 4+)
 // ---------------------------------------------------------------------------
 export interface PredictionResult {
-  predicted_digit: number;
-  confidence: number;
+  prediction: number;
   probabilities: number[];           // length 10
   layer_activations: LayerActivation[];
-  processed_image_b64: string;       // 28×28 thumbnail as base64 PNG
+  processed_image_b64?: string;      // 28×28 thumbnail as base64 PNG
+  intermediate_states?: Record<string, number[]>;
 }
 
 export interface LayerActivation {
@@ -70,19 +70,26 @@ export interface TrainingConfig {
   optimizer: 'sgd' | 'adam';
 }
 
-export interface EpochMetrics {
+export interface TrainHistoryEpoch {
   epoch: number;
-  train_loss: number;
-  train_accuracy: number;
-  val_loss: number;
-  val_accuracy: number;
-  elapsed_seconds: number;
+  loss: number;
+  accuracy: number;
+  val_loss: number | null;
+  val_accuracy: number | null;
 }
 
-export interface TrainingHistory {
-  epochs: EpochMetrics[];
-  is_complete: boolean;
-  best_accuracy: number;
+export interface TrainStatusResponse {
+  status: 'idle' | 'training' | 'completed' | 'failed';
+  epoch: number;
+  total_epochs: number;
+  batch: number;
+  total_batches: number;
+  loss: number;
+  accuracy: number;
+  val_loss: number | null;
+  val_accuracy: number | null;
+  error: string | null;
+  history: TrainHistoryEpoch[];
 }
 
 // ---------------------------------------------------------------------------
@@ -103,6 +110,6 @@ export interface NeuronDetail {
 // ---------------------------------------------------------------------------
 // App navigation
 // ---------------------------------------------------------------------------
-export type AppTab = 'recognize' | 'network' | 'training' | 'dataset' | 'learn';
+export type AppTab = 'recognize' | 'compare' | 'cnn' | 'network' | 'training' | 'dataset' | 'learn';
 
 export type Theme = 'dark' | 'light';

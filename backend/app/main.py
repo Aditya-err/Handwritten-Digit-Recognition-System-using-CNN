@@ -6,10 +6,14 @@ Architecture:
 - Routers are registered with a /api/v1 prefix
 - Phase 1: only the /health endpoint is active
 """
+import os
+# Workaround for OMP: Error #15 when NumPy and PyTorch are both loaded on Windows.
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, dataset
+from app.api import health, dataset, model, cnn
 
 # ---------------------------------------------------------------------------
 # App instance
@@ -51,12 +55,9 @@ app.add_middleware(
 API_PREFIX = "/api/v1"
 
 app.include_router(health.router,  prefix=API_PREFIX)
-app.include_router(dataset.router, prefix=API_PREFIX)  # Phase 2
-
-# Phase 4+: these routers will be added here
-# app.include_router(predict.router,    prefix=API_PREFIX)
-# app.include_router(train.router,      prefix=API_PREFIX)
-# app.include_router(model_info.router, prefix=API_PREFIX)
+app.include_router(dataset.router, prefix=API_PREFIX)
+app.include_router(model.router, prefix=API_PREFIX)
+app.include_router(cnn.router, prefix="/api/v1/cnn", tags=["cnn"])
 
 # ---------------------------------------------------------------------------
 # Root redirect

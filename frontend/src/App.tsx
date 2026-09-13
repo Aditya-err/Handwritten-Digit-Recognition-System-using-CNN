@@ -10,6 +10,8 @@
 import { useState } from 'react';
 import { Navbar } from './components/layout/Navbar';
 import { RecognizePage } from './pages/RecognizePage';
+import { ComparePage }   from './pages/ComparePage';
+import { CnnPage }       from './pages/CnnPage';
 import { NetworkPage }   from './pages/NetworkPage';
 import { TrainingPage }  from './pages/TrainingPage';
 import { DatasetPage }   from './pages/DatasetPage';
@@ -27,6 +29,8 @@ function App() {
   const renderPage = () => {
     switch (activeTab) {
       case 'recognize': return <RecognizePage />;
+      case 'compare':   return <ComparePage />;
+      case 'cnn':       return <CnnPage />;
       case 'network':   return <NetworkPage />;
       case 'training':  return <TrainingPage />;
       case 'dataset':   return <DatasetPage />;
