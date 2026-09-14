@@ -29,7 +29,7 @@ export function ComparePage() {
 
     try {
       // 1. Preprocess the image
-      const prepRes = await fetch('http://localhost:8000/api/v1/dataset/preprocess', {
+      const prepRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/dataset/preprocess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_b64: b64Image })
@@ -49,12 +49,12 @@ export function ComparePage() {
 
       // 2. Run both inferences concurrently
       const [npRes, cnnRes] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/model/predict', {
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/model/predict', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ flat_array: flatArray }),
         }),
-        fetch('http://localhost:8000/api/v1/cnn/predict', {
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/cnn/predict', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ flat_array: flatArray }),

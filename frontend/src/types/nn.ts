@@ -110,6 +110,55 @@ export interface NeuronDetail {
 // ---------------------------------------------------------------------------
 // App navigation
 // ---------------------------------------------------------------------------
-export type AppTab = 'recognize' | 'compare' | 'cnn' | 'network' | 'training' | 'dataset' | 'learn';
+export type AppTab = 'recognize' | 'network' | 'compare' | 'cnn' | 'backprop' | 'training' | 'dataset' | 'architecture' | 'learn';
 
 export type Theme = 'dark' | 'light';
+
+export interface BackpropResponse {
+  prediction: number;
+  probabilities: number[];
+  loss: number;
+  output_gradient: number[];
+  gradients: Record<string, { weights: number[][]; biases: number[] }>;
+  intermediate_states: Record<string, number[]>;
+}
+
+// ---------------------------------------------------------------------------
+// Dataset Explorer (Phase 9+)
+// ---------------------------------------------------------------------------
+export interface DatasetInfoResponse {
+  available: boolean;
+  format: string;
+  image_size: string;
+  channels: string;
+  num_classes: number;
+  splits: Record<string, { filename: string, expected_samples: number }>;
+  archive_path: string;
+}
+
+export interface ExplorerSample {
+  index: number;
+  label: number;
+  image_b64: string;
+  flat_array: number[];
+  width: number;
+  height: number;
+}
+
+export interface ExplorerResponse {
+  split: 'train' | 'test';
+  total_samples: number;
+  sample: ExplorerSample;
+  class_distribution: Record<string, number>;
+}
+
+// ---------------------------------------------------------------------------
+// Architecture Editor (Phase 11+)
+// ---------------------------------------------------------------------------
+export interface ArchitectureLayer {
+  id: string;
+  type: 'input' | 'hidden' | 'output';
+  neurons: number;
+  activation?: ActivationFunction;
+}
+

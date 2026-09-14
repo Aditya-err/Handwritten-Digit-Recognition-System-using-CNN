@@ -38,6 +38,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # ---------------------------------------------------------------------------
+# Dataset Cache
+# ---------------------------------------------------------------------------
+_dataset_cache: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+
+def get_cached_dataset(split: Literal["train", "test"]) -> tuple[np.ndarray, np.ndarray]:
+    if split not in _dataset_cache:
+        logger.info(f"Loading full MNIST {split} split into cache...")
+        _dataset_cache[split] = load_mnist(split=split, flat=True)
+    return _dataset_cache[split]
+
+# ---------------------------------------------------------------------------
 # Response schemas
 # ---------------------------------------------------------------------------
 
@@ -62,6 +73,22 @@ class SampleResponse(BaseModel):
     split: str
     digit_filter: str
     samples: list[SampleImage]
+    class_distribution: dict[int, int]
+
+
+class ExplorerSample(BaseModel):
+    index: int
+    label: int
+    image_b64: str
+    flat_array: list[float]
+    width: int
+    height: int
+
+
+class ExplorerResponse(BaseModel):
+    split: str
+    total_samples: int
+    sample: ExplorerSample
     class_distribution: dict[int, int]
 
 
@@ -149,11 +176,9 @@ async def dataset_sample(
                 detail=f"digit must be 0–9 or 'all', got {digit!r}",
             )
 
-    # Load a manageable subset for quick API responses
-    # (full 60k load is reserved for training in Phase 8)
-    LOAD_SUBSET = 5_000
+    # Use the cached dataset for sample responses to avoid reloading
     try:
-        images, labels = load_mnist(split=split, subset_size=LOAD_SUBSET, flat=True)
+        images, labels = get_cached_dataset(split)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     except Exception as exc:
@@ -186,6 +211,95 @@ async def dataset_sample(
         digit_filter=digit,
         samples=samples,
         class_distribution=class_dist,
+    )
+
+
+@router.get("/dataset/explorer", response_model=ExplorerResponse, tags=["Dataset"])
+async def dataset_explorer(
+    split: Annotated[Literal["train", "test"], Query(description="Dataset split")] = "train",
+    index: Annotated[int, Query(description="Specific sample index to load")] = 0,
+) -> ExplorerResponse:
+    """
+    Phase 9 Dataset Explorer endpoint.
+    Loads a specific sample by index.
+    Returns the real image array, metadata, and full class distributions.
+    """
+    try:
+        images, labels = get_cached_dataset(split)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Dataset load error: {exc}")
+
+    total_samples = len(labels)
+    if not (0 <= index < total_samples):
+        raise HTTPException(status_code=404, detail=f"Index {index} out of bounds for {split} split (0-{total_samples-1})")
+
+    arr = images[index]
+    lbl = int(labels[index])
+
+    sample = ExplorerSample(
+        index=index,
+        label=lbl,
+        image_b64=mnist_array_to_b64_png(arr),
+        flat_array=arr.tolist(),
+        width=28,
+        height=28
+    )
+
+    class_dist = get_class_distribution(labels)
+
+    return ExplorerResponse(
+        split=split,
+        total_samples=total_samples,
+        sample=sample,
+        class_distribution=class_dist
+    )
+
+
+@router.get("/dataset/explorer/random", response_model=ExplorerResponse, tags=["Dataset"])
+async def dataset_explorer_random(
+    split: Annotated[Literal["train", "test"], Query(description="Dataset split")] = "train",
+    digit: Annotated[int | None, Query(description="Specific digit to sample randomly")] = None,
+) -> ExplorerResponse:
+    """
+    Phase 9 Dataset Explorer endpoint for random samples.
+    """
+    try:
+        images, labels = get_cached_dataset(split)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Dataset load error: {exc}")
+
+    total_samples = len(labels)
+    
+    if digit is not None:
+        if not (0 <= digit <= 9):
+            raise HTTPException(status_code=422, detail="Digit must be 0-9")
+        mask = labels == digit
+        indices = np.where(mask)[0]
+        if len(indices) == 0:
+            raise HTTPException(status_code=404, detail=f"No samples found for digit {digit}")
+        chosen_idx = int(np.random.choice(indices))
+    else:
+        chosen_idx = int(np.random.randint(0, total_samples))
+
+    arr = images[chosen_idx]
+    lbl = int(labels[chosen_idx])
+
+    sample = ExplorerSample(
+        index=chosen_idx,
+        label=lbl,
+        image_b64=mnist_array_to_b64_png(arr),
+        flat_array=arr.tolist(),
+        width=28,
+        height=28
+    )
+
+    class_dist = get_class_distribution(labels)
+
+    return ExplorerResponse(
+        split=split,
+        total_samples=total_samples,
+        sample=sample,
+        class_distribution=class_dist
     )
 
 

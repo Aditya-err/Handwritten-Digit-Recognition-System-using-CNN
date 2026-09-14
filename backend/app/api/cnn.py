@@ -37,8 +37,10 @@ async def predict_digit(request: PredictRequest):
     # Reshape the 1D input into a 1x1x28x28 tensor
     try:
         x_tensor = torch.tensor(request.flat_array, dtype=torch.float32).view(1, 1, 28, 28)
+        if not torch.isfinite(x_tensor).all():
+            raise ValueError("Tensor contains non-finite values.")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid tensor shape: {e}")
+        raise HTTPException(status_code=422, detail=f"Invalid tensor shape or values: {e}")
         
     with torch.no_grad():
         logits, intermediates = model(x_tensor, return_intermediates=True)

@@ -23,8 +23,10 @@ const TABS: { id: AppTab; label: string }[] = [
   { id: 'cnn',       label: 'CNN'       },
   { id: 'network',   label: 'Network'   },
   { id: 'training',  label: 'Training'  },
-  { id: 'dataset',   label: 'Dataset'   },
-  { id: 'learn',     label: 'Learn'     },
+  { id: 'backprop',  label: 'Backprop'  },
+  { id: 'dataset',      label: 'Dataset'      },
+  { id: 'architecture', label: 'Architecture' },
+  { id: 'learn',        label: 'Learn'        },
 ];
 
 function StatusIndicator({ status }: { status: BackendStatus }) {
@@ -71,7 +73,7 @@ export function Navbar({ activeTab, onTabChange, theme, onThemeToggle, backendSt
         </div>
 
         {/* Tab navigation */}
-        <nav className="flex flex-1 items-center gap-1" aria-label="Main navigation">
+        <nav className="flex flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap custom-scrollbar pb-1 -mb-1" aria-label="Main navigation">
           {TABS.map((tab) => {
             const isActive = tab.id === activeTab;
             return (

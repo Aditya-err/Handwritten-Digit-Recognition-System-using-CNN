@@ -15,6 +15,8 @@ from app.schemas.models import (
     PredictResponse,
     WeightsResponse,
     LayerWeights,
+    BackpropRequest,
+    BackpropResponse,
 )
 from app.model.network import NeuralNetwork
 from app.dataset.mnist_loader import load_mnist
@@ -223,6 +225,8 @@ async def predict(request: PredictRequest):
     arr = np.array(request.flat_array, dtype=np.float32)
     if arr.shape != (784,):
         raise HTTPException(status_code=422, detail="flat_array must have exactly 784 elements.")
+    if not np.isfinite(arr).all():
+        raise HTTPException(status_code=422, detail="flat_array must contain only finite numbers.")
     
     # Reshape to (1, 784) for the batch dimension
     X = arr.reshape(1, 784)
@@ -245,6 +249,72 @@ async def predict(request: PredictRequest):
         probabilities=probs.tolist(),
         intermediate_states=intermediate_states
     )
+
+
+@router.post("/model/backprop", response_model=BackpropResponse, tags=["Model"])
+async def backprop(request: BackpropRequest):
+    """
+    Educational endpoint to perform forward and backward pass on a temporary model clone
+    to retrieve gradients without affecting the pretrained model.
+    """
+    arr = np.array(request.flat_array, dtype=np.float32)
+    if arr.shape != (784,):
+        raise HTTPException(status_code=422, detail="flat_array must have exactly 784 elements.")
+    if not np.isfinite(arr).all():
+        raise HTTPException(status_code=422, detail="flat_array must contain only finite numbers.")
+    
+    if not (0 <= request.target_class <= 9):
+        raise HTTPException(status_code=422, detail="target_class must be between 0 and 9.")
+    
+    # 1. Clone the global_nn to avoid touching cached intermediate states or weights
+    temp_nn = NeuralNetwork(seed=42) # Seed doesn't matter much since we overwrite weights
+    for i, (orig_layer, temp_layer) in enumerate(zip(global_nn.layers, temp_nn.layers)):
+        if hasattr(orig_layer, 'weights'):
+            temp_layer.weights = orig_layer.weights.copy()
+            temp_layer.biases = orig_layer.biases.copy()
+
+    # 2. Forward pass
+    X = arr.reshape(1, 784)
+    intermediate_states = {}
+    output = X
+    for i, layer in enumerate(temp_nn.layers):
+        output = layer.forward(output)
+        layer_name = f"{layer.__class__.__name__}_{i}"
+        intermediate_states[layer_name] = output[0].tolist()
+        
+    probs = output
+    prediction = int(np.argmax(probs[0]))
+    
+    # 3. Compute loss
+    y_one_hot = np.zeros((1, 10))
+    y_one_hot[0, request.target_class] = 1
+    
+    loss = temp_nn.loss_fn.forward(probs, y_one_hot)
+    
+    # 4. Backward pass
+    d_loss = temp_nn.loss_fn.backward()
+    output_gradient = d_loss[0].tolist()
+    temp_nn.backward(d_loss)
+    
+    # 5. Extract gradients
+    gradients = {}
+    for i, layer in enumerate(temp_nn.layers):
+        if hasattr(layer, 'd_weights'):
+            layer_name = f"{layer.__class__.__name__}_{i}"
+            gradients[layer_name] = {
+                "weights": layer.d_weights.tolist(),
+                "biases": layer.d_biases.flatten().tolist()
+            }
+
+    return BackpropResponse(
+        prediction=prediction,
+        probabilities=probs[0].tolist(),
+        loss=loss,
+        output_gradient=output_gradient,
+        gradients=gradients,
+        intermediate_states=intermediate_states
+    )
+
 
 
 @router.post("/model/save", tags=["Model"])

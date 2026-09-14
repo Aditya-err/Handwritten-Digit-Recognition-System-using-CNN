@@ -69,3 +69,17 @@ class CNNSummaryResponse(BaseModel):
     model_type: str
     input_shape: list[int]
     output_classes: int
+
+
+class BackpropRequest(BaseModel):
+    flat_array: list[float]
+    target_class: int
+
+
+class BackpropResponse(BaseModel):
+    prediction: int
+    probabilities: list[float]
+    loss: float
+    output_gradient: list[float]
+    gradients: dict[str, dict[str, list[Any]]]
+    intermediate_states: dict[str, list[float]]

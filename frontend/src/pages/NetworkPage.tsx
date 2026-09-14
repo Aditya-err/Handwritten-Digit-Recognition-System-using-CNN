@@ -16,7 +16,7 @@ export function NetworkPage() {
 
   useEffect(() => {
     // Fetch weights on mount
-    fetch('http://localhost:8000/api/v1/model/weights')
+    fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/model/weights')
       .then(r => r.json())
       .then(data => {
         if (data.layers) {
@@ -35,7 +35,7 @@ export function NetworkPage() {
     
     try {
       // 1. Preprocess
-      const prepRes = await fetch('http://localhost:8000/api/v1/dataset/preprocess', {
+      const prepRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/dataset/preprocess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_b64: b64Image })
@@ -46,7 +46,7 @@ export function NetworkPage() {
       setInputImageB64(prepData.thumbnail_b64);
       
       // 2. Predict
-      const predRes = await fetch('http://localhost:8000/api/v1/model/predict', {
+      const predRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/model/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ flat_array: prepData.flat_array })

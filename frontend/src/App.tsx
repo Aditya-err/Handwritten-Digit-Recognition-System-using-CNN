@@ -14,8 +14,10 @@ import { ComparePage }   from './pages/ComparePage';
 import { CnnPage }       from './pages/CnnPage';
 import { NetworkPage }   from './pages/NetworkPage';
 import { TrainingPage }  from './pages/TrainingPage';
-import { DatasetPage }   from './pages/DatasetPage';
-import { LearnPage }     from './pages/LearnPage';
+import { DatasetPage }      from './pages/DatasetPage';
+import { ArchitecturePage } from './pages/ArchitecturePage';
+import { LearnPage }        from './pages/LearnPage';
+import { BackpropPage }     from './pages/BackpropPage';
 import { useTheme }          from './hooks/useTheme';
 import { useBackendStatus }  from './hooks/useBackendStatus';
 import type { AppTab } from './types/nn';
@@ -33,8 +35,10 @@ function App() {
       case 'cnn':       return <CnnPage />;
       case 'network':   return <NetworkPage />;
       case 'training':  return <TrainingPage />;
-      case 'dataset':   return <DatasetPage />;
-      case 'learn':     return <LearnPage />;
+      case 'backprop':  return <BackpropPage onNavigate={setActiveTab} />;
+      case 'dataset':      return <DatasetPage />;
+      case 'architecture': return <ArchitecturePage onNavigate={setActiveTab} />;
+      case 'learn':        return <LearnPage onNavigate={setActiveTab} />;
     }
   };
 
@@ -80,7 +84,7 @@ function App() {
         className="border-t py-3 text-center text-xs"
         style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
       >
-        Neural Network Visualizer — Phase 1 &nbsp;·&nbsp; FastAPI + NumPy + PyTorch &nbsp;·&nbsp; React + Vite
+        Neural Network Visualizer &nbsp;·&nbsp; FastAPI + NumPy + PyTorch &nbsp;·&nbsp; React + Vite
       </footer>
     </div>
   );
