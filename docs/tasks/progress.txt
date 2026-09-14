@@ -64,3 +64,22 @@ pm run test (full suite): 7 tests passed across 2 files (exit code 0).
 pm run test -- DrawingCanvas.test.tsx: 8 tests passed (exit code 0).
 - 
 pm run test (full suite): 15 tests passed across 3 files (exit code 0).
+
+## T004: Global Error Boundary Implementation
+**Status:** COMPLETED
+**Date:** 2026-09-14T19:52:00+05:30
+
+**What was done:**
+- Created `frontend/src/components/ErrorBoundary.tsx` implementing:
+  - React class component with `getDerivedStateFromError` and `componentDidCatch` lifecycle methods.
+  - User-friendly fallback UI with styled card, warning icon, error description, collapsible error details, and a "Reload Page" button.
+  - Inline styles used throughout to ensure fallback renders even if CSS fails to load.
+  - Styling uses CSS custom properties (--bg-primary, --bg-card, --accent, etc.) for theme consistency with hardcoded fallbacks.
+- Updated `frontend/src/main.tsx` to wrap `<App />` inside `<ErrorBoundary>` within `<StrictMode>`.
+- Did NOT modify the existing API error handling in DigitRecognitionPage.tsx (constraint respected).
+
+**Verification:**
+- `npm run test` (full suite): 15 tests passed across 3 files (exit code 0). No regressions.
+- `npx tsc --noEmit`: Zero TypeScript errors in ErrorBoundary.tsx and main.tsx.
+- Production build: pre-existing errors only (unused imports in other files); no errors from T004 changes.
+- ErrorBoundary correctly catches rendering errors and displays fallback UI instead of a blank page.
