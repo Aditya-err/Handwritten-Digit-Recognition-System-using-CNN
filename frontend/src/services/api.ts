@@ -1,9 +1,6 @@
 /**
  * Typed API client for the Neural Network Visualizer backend.
  *
- * Phase 1: health check only.
- * Later phases add predict(), train(), getWeights(), etc.
- *
  * All functions throw a typed ApiError on non-2xx responses.
  */
 import type { HealthResponse, ApiError } from '../types/nn';
@@ -42,11 +39,11 @@ export async function fetchHealth(): Promise<HealthResponse> {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 4+ — Prediction (stub signatures only, not yet wired)
+// Prediction
 // ---------------------------------------------------------------------------
 // export async function predict(imageBase64: string, model: 'numpy_nn' | 'pytorch_cnn' = 'numpy_nn') { ... }
 
 // ---------------------------------------------------------------------------
-// Phase 8+ — Training (stub)
+// Training
 // ---------------------------------------------------------------------------
 // export function openTrainingSocket(onMessage: (msg: EpochMetrics) => void): WebSocket { ... }

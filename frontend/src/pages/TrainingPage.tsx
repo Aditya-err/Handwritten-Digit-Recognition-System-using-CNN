@@ -89,9 +89,9 @@ export function TrainingPage() {
     : 0;
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto h-full pb-8">
+    <div className="flex flex-col gap-6 w-full h-full pb-8 overflow-y-auto custom-scrollbar">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4 shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600/20">
             <BarChart2 size={24} className="text-emerald-400" />
@@ -115,24 +115,24 @@ export function TrainingPage() {
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-lg flex items-center gap-3">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-lg flex items-center gap-3 shrink-0">
           <AlertTriangle size={20} />
           {error}
         </div>
       )}
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      {/* Top Section: Config + Metrics */}
+      <div className="grid grid-cols-1 xl:grid-cols-[30%_1fr] gap-6 shrink-0">
         
         {/* Left Column: Config */}
-        <div className="xl:col-span-1 flex flex-col gap-6">
-          <div className="card p-5">
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[var(--border-color)]">
+        <div className="flex flex-col">
+          <div className="card p-5 h-full flex flex-col shadow-lg">
+            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[var(--border-color)] shrink-0">
               <Settings2 size={18} className="text-[var(--text-muted)]" />
               <h2 className="font-semibold text-base">Configuration</h2>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 flex-1">
               <div>
                 <label className="block text-sm text-[var(--text-secondary)] mb-1">Epochs</label>
                 <input type="number" min="1" max="100" className="input-field w-full" value={epochs} onChange={e => setEpochs(Number(e.target.value))} disabled={isTraining} />
@@ -161,7 +161,7 @@ export function TrainingPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex gap-3 shrink-0">
               {!isTraining ? (
                 <button onClick={handleStart} className="btn-primary flex-1 flex justify-center items-center gap-2 py-2.5">
                   <Play size={18} /> Start Training
@@ -173,81 +173,83 @@ export function TrainingPage() {
               )}
             </div>
             
-            <p className="text-xs text-[var(--text-muted)] mt-4">
+            <p className="text-xs text-[var(--text-muted)] mt-4 shrink-0">
               <Info size={12} className="inline mr-1 relative -top-0.5" />
               Pretrained prediction weights (model.npz) are kept completely safe. Custom trained weights are saved to custom_model.npz.
             </p>
           </div>
-
-          <div className="card p-5 bg-blue-500/5 border-blue-500/20">
-            <h3 className="font-semibold text-sm text-blue-400 mb-2 flex items-center gap-2">
-              <Info size={16} /> Educational Concepts
-            </h3>
-            <ul className="text-sm space-y-3 text-[var(--text-secondary)]">
-              <li><strong className="text-[var(--text-primary)]">Epoch:</strong> One complete pass through the entire training dataset.</li>
-              <li><strong className="text-[var(--text-primary)]">Batch Size:</strong> The number of samples processed before the model updates its weights.</li>
-              <li><strong className="text-[var(--text-primary)]">Learning Rate:</strong> Step size used during weight updates. Too large causes divergence; too small slows learning.</li>
-              <li><strong className="text-[var(--text-primary)]">Validation Split:</strong> A portion of data withheld from training to test if the model is overfitting.</li>
-            </ul>
-          </div>
         </div>
 
         {/* Right Column: Monitors */}
-        <div className="xl:col-span-2 flex flex-col gap-6 min-w-0">
-          
+        <div className="flex flex-col gap-6">
           {/* Progress */}
-          <div className="card p-5">
+          <div className="card p-5 shadow-lg">
              <div className="flex justify-between items-end mb-2">
-               <h3 className="font-medium">Overall Progress</h3>
-               <span className="text-sm text-[var(--text-muted)]">
+               <h3 className="font-semibold text-base">Overall Progress</h3>
+               <span className="text-sm font-bold text-[var(--text-secondary)]">
                  Epoch {status?.epoch || 0} / {status?.total_epochs || 0}
                </span>
              </div>
-             <div className="w-full h-3 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
+             <div className="w-full h-4 bg-[var(--bg-secondary)] rounded-full overflow-hidden shadow-inner">
                <div 
                  className="h-full bg-blue-500 transition-all duration-300 ease-out" 
                  style={{ width: `${progressPercent}%` }}
                />
              </div>
-             <div className="flex justify-between text-xs text-[var(--text-muted)] mt-2">
+             <div className="flex justify-between text-sm font-medium text-[var(--text-muted)] mt-3">
                <span>Batch {status?.batch || 0} of {status?.total_batches || 0}</span>
                <span>{progressPercent.toFixed(1)}%</span>
              </div>
           </div>
 
           {/* Metric Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="card p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-1">Train Loss</span>
-              <span className="text-2xl font-bold text-blue-500">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+            <div className="card p-4 flex flex-col justify-center items-center text-center shadow-md">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Train Loss</span>
+              <span className="text-3xl font-bold text-blue-500">
                 {status?.loss ? status.loss.toFixed(4) : '0.0000'}
               </span>
             </div>
-            <div className="card p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-1">Train Acc</span>
-              <span className="text-2xl font-bold text-emerald-500">
+            <div className="card p-4 flex flex-col justify-center items-center text-center shadow-md">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Train Acc</span>
+              <span className="text-3xl font-bold text-emerald-500">
                 {status?.accuracy ? (status.accuracy * 100).toFixed(1) + '%' : '0.0%'}
               </span>
             </div>
-            <div className="card p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-1">Val Loss</span>
-              <span className="text-2xl font-bold text-amber-500">
+            <div className="card p-4 flex flex-col justify-center items-center text-center shadow-md">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Val Loss</span>
+              <span className="text-3xl font-bold text-amber-500">
                 {status?.val_loss ? status.val_loss.toFixed(4) : '--'}
               </span>
             </div>
-            <div className="card p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-1">Val Acc</span>
-              <span className="text-2xl font-bold text-purple-500">
+            <div className="card p-4 flex flex-col justify-center items-center text-center shadow-md">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Val Acc</span>
+              <span className="text-3xl font-bold text-purple-500">
                 {status?.val_accuracy ? (status.val_accuracy * 100).toFixed(1) + '%' : '--'}
               </span>
             </div>
           </div>
-
-          {/* Charts */}
-          <TrainingCharts history={status?.history || []} />
-
         </div>
       </div>
+
+      {/* Middle Section: Charts */}
+      <div className="shrink-0 shadow-lg bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] overflow-hidden">
+        <TrainingCharts history={status?.history || []} />
+      </div>
+
+      {/* Bottom Section: Educational */}
+      <div className="card p-6 bg-blue-500/5 border-blue-500/20 shadow-sm shrink-0">
+        <h3 className="font-bold text-base text-blue-400 mb-3 flex items-center gap-2">
+          <Info size={18} /> Educational Concepts
+        </h3>
+        <ul className="text-sm space-y-3 text-[var(--text-secondary)]">
+          <li><strong className="text-[var(--text-primary)]">Epoch:</strong> One complete pass through the entire training dataset.</li>
+          <li><strong className="text-[var(--text-primary)]">Batch Size:</strong> The number of samples processed before the model updates its weights.</li>
+          <li><strong className="text-[var(--text-primary)]">Learning Rate:</strong> Step size used during weight updates. Too large causes divergence; too small slows learning.</li>
+          <li><strong className="text-[var(--text-primary)]">Validation Split:</strong> A portion of data withheld from training to test if the model is overfitting.</li>
+        </ul>
+      </div>
+
     </div>
   );
 }

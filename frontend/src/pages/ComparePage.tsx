@@ -85,10 +85,11 @@ export function ComparePage() {
     }
   };
 
-  const renderModelCard = (title: string, result: PredictionResult | null, accentClass: string) => {
+  const renderModelCard = (title: string, result: PredictionResult | null, accentClass: string, architecture: string) => {
     return (
-      <div className={`card p-6 flex flex-col items-center justify-between min-h-[300px] border-t-4 ${accentClass}`}>
-        <h2 className="text-xl font-bold mb-4">{title}</h2>
+      <div className={`card p-6 flex flex-col items-center justify-between h-full min-h-[400px] border-t-4 ${accentClass}`}>
+        <h2 className="text-xl font-bold mb-1">{title}</h2>
+        <div className="text-sm font-mono text-[var(--text-muted)] mb-6 text-center">{architecture}</div>
         
         {isInferencing ? (
           <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)] gap-3">
@@ -157,7 +158,7 @@ export function ComparePage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-6xl mx-auto h-full pb-8">
+    <div className="flex flex-col gap-8 w-full h-full pb-8">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
         <div className="flex items-center gap-3">
@@ -177,31 +178,28 @@ export function ComparePage() {
         </div>
       )}
 
-      {/* Comparison Area */}
-      <div className="flex flex-col xl:flex-row gap-8 items-stretch">
-        <div className="flex-1 w-full">
-          {renderModelCard("NumPy Neural Network", numpyResult, "border-t-blue-500")}
-        </div>
-        
-        <div className="hidden xl:flex flex-col items-center justify-center opacity-30 px-4">
-          <ArrowRight size={48} />
-        </div>
-        
-        <div className="flex-1 w-full">
-          {renderModelCard("PyTorch CNN", cnnResult, "border-t-purple-500")}
-        </div>
-      </div>
-
-      {getAgreementStatus()}
-
-      {/* Input Area */}
-      <div className="flex justify-center pt-8 border-t border-[var(--border-color)]">
-        <div className="w-full max-w-md">
-          <h3 className="text-center font-semibold mb-4 text-[var(--text-secondary)]">Draw a digit here</h3>
+      {/* Shared Input Area */}
+      <div className="flex flex-col items-center pt-2">
+        <div className="card p-5 shadow-lg w-full max-w-[360px] flex flex-col items-center">
+          <h3 className="font-bold text-sm text-[var(--text-primary)] w-full text-center uppercase tracking-wider mb-4">Shared Input</h3>
           <DrawingCanvas 
             onPredict={handlePredict} 
             disabled={isInferencing}
+            autoPredict={false}
           />
+        </div>
+      </div>
+      
+      {getAgreementStatus()}
+
+      {/* Comparison Area */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-stretch flex-1 min-h-0">
+        <div className="w-full h-full">
+          {renderModelCard("NumPy Neural Network", numpyResult, "border-t-blue-500", "784 → 128 → 64 → 10")}
+        </div>
+        
+        <div className="w-full h-full">
+          {renderModelCard("PyTorch CNN", cnnResult, "border-t-purple-500", "Conv2D → Pool → Conv2D → Pool → 10")}
         </div>
       </div>
       

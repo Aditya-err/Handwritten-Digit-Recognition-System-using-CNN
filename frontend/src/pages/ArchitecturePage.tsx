@@ -167,7 +167,7 @@ export function ArchitecturePage({ onNavigate }: ArchitecturePageProps) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="flex flex-col gap-6 w-full h-full pb-8">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-b border-[var(--border-color)]">

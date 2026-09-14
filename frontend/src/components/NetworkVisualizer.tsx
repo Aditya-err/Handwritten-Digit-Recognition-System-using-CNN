@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import type { NeuronDetail } from '../types/nn';
 
 interface LayerWeights {
   layer_name: string;
-  weights: number[][]; // [input_size][output_size] or transposed?
+  weights: number[][]; // [input_size][output_size]
   biases: number[];
 }
 
@@ -13,21 +13,11 @@ interface NetworkVisualizerProps {
   inputImageB64: string | null;
   onSelectNeuron: (neuron: NeuronDetail | null) => void;
   prediction: number | null;
+  isInteractive?: boolean;
 }
 
-// Fixed dimensions for SVG
-const SVG_WIDTH = 800;
-const SVG_HEIGHT = 500;
-
-const LAYER_X = {
-  INPUT: 100,
-  DENSE1: 300,
-  DENSE2: 500,
-  OUTPUT: 700
-};
-
-// We sample 16 nodes for hidden layers
-const SAMPLED_HIDDEN_COUNT = 16;
+// We sample 20 nodes for hidden layers to make it look taller
+const SAMPLED_HIDDEN_COUNT = 20;
 // All 10 for output
 const OUTPUT_COUNT = 10;
 
@@ -36,15 +26,46 @@ export function NetworkVisualizer({
   weights,
   inputImageB64,
   onSelectNeuron,
-  prediction
+  prediction,
+  isInteractive = false
 }: NetworkVisualizerProps) {
   
-  const [activeStep, setActiveStep] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+
+  const [activeStep, setActiveStep] = useState<number>(isInteractive ? 6 : 0);
   const [isPlaying, setIsPlaying] = useState(false);
   
   // Animation state machine
   // 0: Idle/Input, 1: Dense 1 (z), 2: ReLU 1 (a), 3: Dense 2 (z), 4: ReLU 2 (a), 5: Dense 3 (z), 6: Softmax (a)
   const MAX_STEP = 6;
+
+  // Responsive Resizing
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          setDimensions({
+            width: entry.contentRect.width,
+            height: entry.contentRect.height
+          });
+        }
+      }
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Auto-finish animation instantly in interactive mode
+  useEffect(() => {
+    if (isInteractive && intermediateStates) {
+      setActiveStep(6);
+    }
+  }, [intermediateStates, isInteractive]);
 
   useEffect(() => {
     let timer: number;
@@ -68,25 +89,37 @@ export function NetworkVisualizer({
     onSelectNeuron(null);
   };
 
-  // Pre-calculate node positions
+  // Dynamic Layout Calculations
+  const paddingX = Math.max(80, dimensions.width * 0.12);
+  const spacingX = (dimensions.width - paddingX * 2) / 3;
+  
+  const LAYER_X = {
+    INPUT: paddingX,
+    DENSE1: paddingX + spacingX,
+    DENSE2: paddingX + spacingX * 2,
+    OUTPUT: paddingX + spacingX * 3
+  };
+
   const getHiddenY = (index: number, count: number) => {
-    const spacing = 400 / count;
-    return 50 + (index * spacing) + (spacing / 2);
+    const verticalPadding = Math.max(100, dimensions.height * 0.2);
+    const availableHeight = dimensions.height - verticalPadding * 2;
+    const spacing = availableHeight / count;
+    return verticalPadding + (index * spacing) + (spacing / 2);
   };
 
   const getOutputY = (index: number) => {
-    const spacing = 400 / OUTPUT_COUNT;
-    return 50 + (index * spacing) + (spacing / 2);
+    const verticalPadding = Math.max(100, dimensions.height * 0.2);
+    const availableHeight = dimensions.height - verticalPadding * 2;
+    const spacing = availableHeight / OUTPUT_COUNT;
+    return verticalPadding + (index * spacing) + (spacing / 2);
   };
 
   const handleNodeClick = (layerIndex: number, layerName: string, neuronIndex: number, activationFn: any, isOutput = false) => {
     if (!weights || !intermediateStates) return;
 
-    // Find the dense layer weights
     const denseKey = `Dense_${layerIndex}`;
     const actKey = isOutput ? `Softmax_${layerIndex + 1}` : `ReLU_${layerIndex + 1}`;
     
-    // Some logic to extract weights if available
     let bias = 0;
     let z = 0;
     let a = 0;
@@ -111,12 +144,11 @@ export function NetworkVisualizer({
       pre_activation_value: z,
       bias: bias,
       activation_function: activationFn,
-      incoming_weights: [], // omitted for brevity in inspector
+      incoming_weights: [],
       outgoing_weights: []
     });
   };
 
-  // Helper to get activation value for color
   const getActivation = (layerKey: string, index: number, stepRequired: number) => {
     if (activeStep < stepRequired || !intermediateStates || !intermediateStates[layerKey]) {
       return 0; // Not active yet
@@ -128,29 +160,32 @@ export function NetworkVisualizer({
   const renderHiddenLayer = (x: number, count: number, name: string, layerIdx: number, actStep: number, actKey: string, isSoftmax=false) => {
     const nodes = [];
     for (let i = 0; i < count; i++) {
-      const y = getHiddenY(i, count);
+      const y = isSoftmax ? getOutputY(i) : getHiddenY(i, count);
       
       let a = getActivation(actKey, i, actStep);
-      // Normalize alpha a bit for visualization
       let alpha = isSoftmax ? a : Math.min(1.0, Math.max(0.1, a / 2.0));
-      if (!intermediateStates || activeStep < actStep) alpha = 0.1;
+      if (!intermediateStates || activeStep < actStep) alpha = 0.05;
       
       const isPredicted = isSoftmax && prediction === i && activeStep >= 6;
+      
+      // Node color intensity based on activation
+      const fillColor = isPredicted ? '#10b981' : `rgba(59, 130, 246, ${alpha})`;
+      const strokeColor = isPredicted ? '#059669' : (alpha > 0.1 ? '#3b82f6' : '#334155');
 
       nodes.push(
         <g key={`${name}-${i}`} 
            transform={`translate(${x}, ${y})`} 
            onClick={() => handleNodeClick(layerIdx, name, i, isSoftmax ? 'softmax' : 'relu', isSoftmax)}
-           className="cursor-pointer hover:opacity-80 transition-opacity"
+           className="cursor-pointer hover:scale-125 transition-transform"
         >
           <circle 
-            r={12} 
-            fill={isPredicted ? '#10b981' : `rgba(59, 130, 246, ${alpha})`}
-            stroke={isPredicted ? '#059669' : '#3b82f6'} 
+            r={isSoftmax ? 18 : 14} 
+            fill={fillColor}
+            stroke={strokeColor} 
             strokeWidth={2}
           />
           {isSoftmax && (
-            <text x={20} y={5} className="text-sm font-bold fill-current" style={{ fill: 'var(--text-primary)' }}>
+            <text x={30} y={6} className={`text-lg font-bold fill-current ${isPredicted ? 'text-emerald-400' : ''}`} style={{ fill: isPredicted ? 'var(--color-emerald-400, #34d399)' : 'var(--text-primary)' }}>
               {i}
             </text>
           )}
@@ -161,55 +196,70 @@ export function NetworkVisualizer({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-4 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]">
-        <button onClick={() => setIsPlaying(!isPlaying)} className="btn-primary py-1 px-4 text-sm" disabled={!intermediateStates}>
-          {isPlaying ? 'Pause' : 'Play'}
-        </button>
-        <button 
-          onClick={() => setActiveStep(p => Math.min(MAX_STEP, p + 1))} 
-          className="btn-secondary py-1 px-4 text-sm"
-          disabled={!intermediateStates || activeStep >= MAX_STEP}
-        >
-          Step
-        </button>
-        <button onClick={reset} className="btn-secondary py-1 px-4 text-sm">
-          Reset
-        </button>
-        <span className="text-sm font-mono opacity-70 ml-4">
-          Step: {activeStep} / {MAX_STEP}
-        </span>
-      </div>
+    <div className="flex flex-col w-full h-full relative group">
+      {/* Controls - Hide in interactive mode */}
+      {!isInteractive && (
+        <div className="absolute bottom-4 right-4 z-20 flex items-center justify-center gap-2 bg-[var(--bg-secondary)]/85 backdrop-blur-sm p-2 border border-[var(--border-color)] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={() => setIsPlaying(!isPlaying)} className="btn-primary py-1 px-3 text-xs" disabled={!intermediateStates}>
+            {isPlaying ? 'Pause' : 'Play'}
+          </button>
+          <button 
+            onClick={() => setActiveStep(p => Math.min(MAX_STEP, p + 1))} 
+            className="btn-secondary py-1 px-3 text-xs"
+            disabled={!intermediateStates || activeStep >= MAX_STEP}
+          >
+            Step
+          </button>
+          <button onClick={reset} className="btn-secondary py-1 px-3 text-xs">
+            Reset
+          </button>
+        </div>
+      )}
 
       {/* SVG Canvas */}
-      <div className="relative w-full overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] flex justify-center py-8">
-        <svg width={SVG_WIDTH} height={SVG_HEIGHT} viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} className="max-w-full h-auto">
-          
+      <div ref={containerRef} className="flex-1 w-full h-full relative overflow-hidden bg-[var(--bg-primary)]">
+        <svg 
+          width="100%"
+          height="100%"
+          className="w-full h-full absolute inset-0"
+        >
           <g>
             {/* Input to Dense 1 (Generic faint lines since input is an image) */}
             <g opacity={0.15}>
               {Array.from({length: SAMPLED_HIDDEN_COUNT}).map((_, i) => (
-                <line key={`l1-${i}`} x1={LAYER_X.INPUT + 50} y1={250} x2={LAYER_X.DENSE1} y2={getHiddenY(i, SAMPLED_HIDDEN_COUNT)} stroke="#888" strokeWidth="0.5" />
+                <line key={`l1-${i}`} x1={LAYER_X.INPUT + 60} y1={dimensions.height / 2} x2={LAYER_X.DENSE1} y2={getHiddenY(i, SAMPLED_HIDDEN_COUNT)} stroke="#888" strokeWidth="1" />
               ))}
             </g>
             
             {/* Dense 1 to Dense 2 */}
             {Array.from({length: SAMPLED_HIDDEN_COUNT}).map((_, i) => (
               Array.from({length: SAMPLED_HIDDEN_COUNT}).map((_, j) => {
-                // i is Dense_1 index, j is Dense_2 index
                 const dense2Weights = weights?.find(w => w.layer_name === 'Dense_2');
                 let weight = 0;
                 if (dense2Weights) {
-                  // Wait, weights matrix is [input_size][output_size]
-                  // i is input (Dense_1), j is output (Dense_2)
                   weight = dense2Weights.weights[i][j];
                 }
+                
+                // Effective contribution = activation * weight
+                let sourceAct = getActivation('ReLU_1', i, 2);
+                if (!intermediateStates || activeStep < 2) sourceAct = 0.5; // default state
+                
+                const contribution = sourceAct * weight;
+                
+                // Color based on weight sign, opacity based on contribution magnitude
                 const strokeColor = weight > 0 ? '#3b82f6' : '#ef4444'; // Blue : Red
-                const opacity = Math.min(0.8, Math.abs(weight) * 2); // Weak weights are transparent
+                let opacity = 0.05 + Math.min(0.8, Math.abs(contribution));
+                if (!intermediateStates || activeStep < 3) opacity = Math.min(0.3, Math.abs(weight));
                 
                 return (
-                  <line key={`l2-${i}-${j}`} x1={LAYER_X.DENSE1} y1={getHiddenY(i, SAMPLED_HIDDEN_COUNT)} x2={LAYER_X.DENSE2} y2={getHiddenY(j, SAMPLED_HIDDEN_COUNT)} stroke={strokeColor} opacity={opacity} strokeWidth="1" />
+                  <line 
+                    key={`l2-${i}-${j}`} 
+                    x1={LAYER_X.DENSE1} y1={getHiddenY(i, SAMPLED_HIDDEN_COUNT)} 
+                    x2={LAYER_X.DENSE2} y2={getHiddenY(j, SAMPLED_HIDDEN_COUNT)} 
+                    stroke={strokeColor} 
+                    opacity={opacity} 
+                    strokeWidth={Math.max(0.5, opacity * 3)} 
+                  />
                 );
               })
             ))}
@@ -222,37 +272,77 @@ export function NetworkVisualizer({
                 if (dense4Weights) {
                   weight = dense4Weights.weights[i][j];
                 }
+                
+                let sourceAct = getActivation('ReLU_3', i, 4);
+                if (!intermediateStates || activeStep < 4) sourceAct = 0.5;
+                
+                const contribution = sourceAct * weight;
+                
                 const strokeColor = weight > 0 ? '#3b82f6' : '#ef4444';
-                const opacity = Math.min(0.8, Math.abs(weight) * 2);
+                let opacity = 0.05 + Math.min(0.8, Math.abs(contribution));
+                if (!intermediateStates || activeStep < 5) opacity = Math.min(0.3, Math.abs(weight));
+                
+                const isPredicted = j === prediction && activeStep >= 6;
+                if (isPredicted && contribution > 0) opacity = Math.min(1, opacity * 2);
                 
                 return (
-                  <line key={`l3-${i}-${j}`} x1={LAYER_X.DENSE2} y1={getHiddenY(i, SAMPLED_HIDDEN_COUNT)} x2={LAYER_X.OUTPUT} y2={getOutputY(j)} stroke={strokeColor} opacity={opacity} strokeWidth="1.5" />
+                  <line 
+                    key={`l3-${i}-${j}`} 
+                    x1={LAYER_X.DENSE2} y1={getHiddenY(i, SAMPLED_HIDDEN_COUNT)} 
+                    x2={LAYER_X.OUTPUT} y2={getOutputY(j)} 
+                    stroke={strokeColor} 
+                    opacity={opacity} 
+                    strokeWidth={Math.max(1, opacity * 4)} 
+                  />
                 );
               })
             ))}
           </g>
 
+          {/* Layer Headers */}
+          <g className="fill-current text-sm font-semibold" style={{ fill: 'var(--text-secondary)' }} textAnchor="middle">
+            <text x={LAYER_X.INPUT} y={40}>INPUT LAYER</text>
+            <text x={LAYER_X.INPUT} y={60} className="text-xs" style={{ fill: 'var(--text-muted)' }}>(784)</text>
+            
+            <text x={LAYER_X.DENSE1} y={40}>HIDDEN LAYER 1</text>
+            <text x={LAYER_X.DENSE1} y={60} className="text-xs" style={{ fill: 'var(--text-muted)' }}>(128 · ReLU)</text>
+
+            <text x={LAYER_X.DENSE2} y={40}>HIDDEN LAYER 2</text>
+            <text x={LAYER_X.DENSE2} y={60} className="text-xs" style={{ fill: 'var(--text-muted)' }}>(64 · ReLU)</text>
+
+            <text x={LAYER_X.OUTPUT} y={40}>OUTPUT LAYER</text>
+            <text x={LAYER_X.OUTPUT} y={60} className="text-xs" style={{ fill: 'var(--text-muted)' }}>(10 · Softmax)</text>
+          </g>
+
           {/* Input Layer */}
-          <g transform={`translate(${LAYER_X.INPUT - 50}, 200)`}>
+          <g transform={`translate(${LAYER_X.INPUT - 60}, ${dimensions.height / 2 - 60})`}>
             {inputImageB64 ? (
-              <image href={`data:image/png;base64,${inputImageB64}`} width="100" height="100" style={{ imageRendering: 'pixelated' }} />
+              <image href={`data:image/png;base64,${inputImageB64}`} width="120" height="120" style={{ imageRendering: 'pixelated' }} className="rounded shadow-sm" />
             ) : (
-              <rect width="100" height="100" fill="transparent" stroke="#555" strokeDasharray="4" />
+              <rect width="120" height="120" fill="transparent" stroke="var(--border-color)" strokeWidth="2" strokeDasharray="6" rx="8" />
             )}
-            <text x="50" y="125" textAnchor="middle" className="text-sm fill-current opacity-70" style={{ fill: 'var(--text-primary)' }}>Input (28x28)</text>
           </g>
 
           {/* Dense 1 */}
           {renderHiddenLayer(LAYER_X.DENSE1, SAMPLED_HIDDEN_COUNT, 'Dense 1', 0, 2, 'ReLU_1')}
-          <text x={LAYER_X.DENSE1} y={480} textAnchor="middle" className="text-xs fill-current opacity-70" style={{ fill: 'var(--text-primary)' }}>128 Neurons (16 shown)</text>
 
           {/* Dense 2 */}
           {renderHiddenLayer(LAYER_X.DENSE2, SAMPLED_HIDDEN_COUNT, 'Dense 2', 2, 4, 'ReLU_3')}
-          <text x={LAYER_X.DENSE2} y={480} textAnchor="middle" className="text-xs fill-current opacity-70" style={{ fill: 'var(--text-primary)' }}>64 Neurons (16 shown)</text>
 
           {/* Output */}
           {renderHiddenLayer(LAYER_X.OUTPUT, OUTPUT_COUNT, 'Output', 4, 6, 'Softmax_5', true)}
-          <text x={LAYER_X.OUTPUT} y={480} textAnchor="middle" className="text-xs fill-current opacity-70" style={{ fill: 'var(--text-primary)' }}>10 Classes</text>
+
+          {/* Legend */}
+          <g transform={`translate(${Math.max(10, dimensions.width / 2 - 250)}, ${dimensions.height - 20})`} className="text-xs font-mono fill-current" style={{ fill: 'var(--text-muted)' }}>
+             <line x1="0" y1="-4" x2="30" y2="-4" stroke="#3b82f6" strokeWidth="3" />
+             <text x="40" y="0">Positive weight (activates)</text>
+             
+             <line x1="220" y1="-4" x2="250" y2="-4" stroke="#ef4444" strokeWidth="3" />
+             <text x="260" y="0">Negative weight (inhibits)</text>
+             
+             <line x1="440" y1="-4" x2="470" y2="-4" stroke="#64748b" strokeWidth="3" />
+             <text x="480" y="0">Thickness = |w × a|</text>
+          </g>
 
         </svg>
       </div>

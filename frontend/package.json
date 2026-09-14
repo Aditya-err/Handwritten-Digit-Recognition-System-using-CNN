@@ -19,8 +19,6 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
-    "@reticlehq/react": "^2.14.0",
-    "@reticlehq/vite-plugin": "^2.14.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

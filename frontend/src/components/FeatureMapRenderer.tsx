@@ -47,8 +47,9 @@ export function FeatureMapRenderer({
   globalMin,
   globalMax,
   onClick,
-  selected = false
-}: FeatureMapRendererProps) {
+  selected = false,
+  responsive = false
+}: FeatureMapRendererProps & { responsive?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -96,14 +97,14 @@ export function FeatureMapRenderer({
 
   return (
     <div 
-      className={`relative cursor-pointer transition-all hover:scale-105 overflow-hidden rounded ${selected ? 'ring-2 ring-brand-500 shadow-glow-sm' : 'border border-[var(--border-color)] hover:border-brand-400'}`}
+      className={`relative cursor-pointer transition-all hover:scale-[1.02] overflow-hidden rounded ${selected ? 'ring-2 ring-brand-500 shadow-glow-sm' : 'border border-[var(--border-color)] hover:border-brand-400'}`}
       onClick={onClick}
-      style={{ width: canvasSize, height: canvasSize }}
+      style={responsive ? { width: '100%', aspectRatio: '1/1' } : { width: canvasSize, height: canvasSize }}
     >
       <canvas
         ref={canvasRef}
-        width={canvasSize * 2} // Render 2x for retina displays
-        height={canvasSize * 2}
+        width={256} // Fixed high res internal buffer
+        height={256}
         className="w-full h-full block"
       />
     </div>

@@ -1,6 +1,6 @@
 /**
  * TypeScript types for the Neural Network Visualizer.
- * Phase 1: Core types only. Extended in later phases.
+ * Core definitions for network architecture, UI state, and API communication.
  */
 
 // ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ export interface NetworkArchitecture {
 }
 
 // ---------------------------------------------------------------------------
-// Prediction (Phase 4+)
+// Prediction
 // ---------------------------------------------------------------------------
 export interface PredictionResult {
   prediction: number;
@@ -59,10 +59,10 @@ export interface LayerActivation {
 }
 
 // ---------------------------------------------------------------------------
-// Training (Phase 8+)
+// Training
 // ---------------------------------------------------------------------------
 export interface TrainingConfig {
-  model: 'numpy_nn';                 // Phase 10 adds 'pytorch_cnn'
+  model: 'numpy_nn' | 'pytorch_cnn';
   epochs: number;
   batch_size: number;
   learning_rate: number;
@@ -93,7 +93,7 @@ export interface TrainStatusResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Neuron inspector (Phase 6+)
+// Neuron inspector
 // ---------------------------------------------------------------------------
 export interface NeuronDetail {
   neuron_id: number;
@@ -110,7 +110,7 @@ export interface NeuronDetail {
 // ---------------------------------------------------------------------------
 // App navigation
 // ---------------------------------------------------------------------------
-export type AppTab = 'recognize' | 'network' | 'compare' | 'cnn' | 'backprop' | 'training' | 'dataset' | 'architecture' | 'learn';
+export type AppTab = 'digit-recognition' | 'network' | 'compare' | 'cnn' | 'backprop' | 'training' | 'dataset' | 'architecture' | 'learn';
 
 export type Theme = 'dark' | 'light';
 
@@ -124,7 +124,7 @@ export interface BackpropResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Dataset Explorer (Phase 9+)
+// Dataset Explorer
 // ---------------------------------------------------------------------------
 export interface DatasetInfoResponse {
   available: boolean;
@@ -153,7 +153,7 @@ export interface ExplorerResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Architecture Editor (Phase 11+)
+// Architecture Editor
 // ---------------------------------------------------------------------------
 export interface ArchitectureLayer {
   id: string;

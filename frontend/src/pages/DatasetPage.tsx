@@ -1,7 +1,6 @@
 /**
- * DatasetPage — Phase 1 stub.
- * Will contain: MNIST sample grid, class distribution, image inspector.
- * Implemented in Phase 11.
+ * DatasetPage
+ * Contains MNIST sample grid, class distribution, image inspector.
  */
 import { Database, Cpu } from 'lucide-react';
 
@@ -18,11 +17,11 @@ export function DatasetPage() {
       <div className="card max-w-md text-left">
         <div className="flex items-center gap-2 text-amber-400 text-sm font-semibold mb-2">
           <Cpu size={14} />
-          Phase 1 — Scaffold Only
+          Under Construction
         </div>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           Sample image grid, class distribution, and pixel inspector will be
-          implemented in <strong>Phase 11</strong>.
+          implemented soon.
         </p>
       </div>
     </div>

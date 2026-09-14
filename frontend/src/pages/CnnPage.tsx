@@ -126,7 +126,6 @@ export function CnnPage() {
     return { min, max, mean: sum / data.length };
   };
 
-  // Render a block of feature maps
   const renderLayerGroup = (
     title: string, 
     layerName: string, 
@@ -145,9 +144,9 @@ export function CnnPage() {
     const globalMax = Math.max(...data);
 
     return (
-      <div className="card p-6 mb-8">
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
+      <div className="card p-6 mb-8 shadow-lg">
+        <div className="flex flex-col xl:flex-row gap-6">
+          <div className="flex-1 xl:w-1/3 shrink-0">
             <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
               <Layers className="text-brand-500" size={20} />
               {title}
@@ -160,17 +159,17 @@ export function CnnPage() {
             </p>
           </div>
           
-          <div className="w-full md:w-2/3">
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+          <div className="flex-1 w-full">
+            <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-3 w-full">
               {maps.map((mapData, idx) => {
                 const isSelected = selectedMap?.layerName === layerName && selectedMap?.channelIndex === idx;
                 return (
-                  <div key={idx} className="flex flex-col items-center gap-1">
+                  <div key={idx} className="flex flex-col items-center gap-1 w-full">
                     <FeatureMapRenderer
                       data={mapData}
                       width={width}
                       height={height}
-                      canvasSize={48}
+                      responsive={true}
                       globalMin={globalMin}
                       globalMax={globalMax}
                       selected={isSelected}
@@ -182,7 +181,7 @@ export function CnnPage() {
                         data: mapData
                       })}
                     />
-                    <span className="text-[10px] text-[var(--text-muted)] font-mono">{idx}</span>
+                    <span className="text-[10px] text-[var(--text-muted)] font-mono">Channel {idx}</span>
                   </div>
                 );
               })}
@@ -196,7 +195,7 @@ export function CnnPage() {
   const intermediates = predictionResult?.intermediate_states;
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto h-full pb-8">
+    <div className="flex flex-col gap-8 w-full h-full pb-8">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
         <div className="flex items-center gap-3">

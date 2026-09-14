@@ -112,7 +112,7 @@ export function LearnPage({ onNavigate }: LearnPageProps) {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10 py-6">
+    <div className="w-full h-full pb-8 flex flex-col gap-10">
       
       {/* Header */}
       <div className="text-center space-y-4">
@@ -128,7 +128,7 @@ export function LearnPage({ onNavigate }: LearnPageProps) {
       {/* Roadmap */}
       <div className="card bg-brand-500/5 border-brand-500/20">
         <h2 className="text-lg font-bold mb-4 border-b border-brand-500/20 pb-2">Learning Roadmap</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
           {ROADMAP.map((item) => (
             <button
               key={item.id}
@@ -141,7 +141,7 @@ export function LearnPage({ onNavigate }: LearnPageProps) {
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 items-start">
         <LearnCard 
           id="mnist"
           title="1. MNIST & Data"
@@ -269,7 +269,7 @@ export function LearnPage({ onNavigate }: LearnPageProps) {
 # Probabilities: [0.659, 0.242, 0.098] -> Sums to 1.0!`}
             </pre>
           }
-          appLink={{ label: 'Probabilities', tab: 'recognize' }}
+          appLink={{ label: 'Probabilities', tab: 'digit-recognition' }}
           mistake="Confusing logits with probabilities. A logit of 2.0 does not mean 200% confidence!"
           interview="What does Softmax do to the output layer?"
           onNavigate={onNavigate}
@@ -403,7 +403,7 @@ export function LearnPage({ onNavigate }: LearnPageProps) {
           why="Dense layers flatten images, destroying 2D spatial relationships. CNNs preserve the 2D structure, allowing them to detect edges, corners, and shapes regardless of where they appear in the image (Translation Invariance)."
           how={
             <div className="text-xs space-y-2">
-              <p>The CNN architecture implemented in Phase 6 of this project:</p>
+              <p>The CNN architecture implemented in this project:</p>
               <div className="font-mono text-[var(--text-primary)]">
                 1. Conv1 (1 → 8 filters, 3×3)<br/>
                 2. ReLU + MaxPool (2×2)<br/>

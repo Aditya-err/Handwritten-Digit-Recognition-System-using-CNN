@@ -54,6 +54,7 @@ class ProcessedImage:
     flat_array: np.ndarray      # shape (784,), float32, values [0.0, 1.0]
     grid_array: np.ndarray      # shape (28, 28), float32, values [0.0, 1.0]
     thumbnail_b64: str          # base64 PNG of the 28×28 image for display
+    model_input_b64: str        # base64 PNG of the exact model input (MNIST convention)
     original_size: tuple[int, int]  # (width, height) of the canvas image
 
 
@@ -151,31 +152,86 @@ def process_canvas_image(b64_png: str) -> ProcessedImage:
     # 3. Grayscale
     img = img.convert("L")
 
-    # 4. Resize to 28×28 — use LANCZOS for best downsampling quality
-    img_28 = img.resize((28, 28), Image.LANCZOS)
+    # 4. MNIST-compatible Preprocessing
+    # Invert so background is 0 (black), digit is bright
+    raw_arr = 255 - np.array(img, dtype=np.float32)
+    
+    # Threshold for finding bounding box
+    threshold = 10
+    
+    # Find bounding box
+    rows = np.any(raw_arr > threshold, axis=1)
+    cols = np.any(raw_arr > threshold, axis=0)
+    
+    if not np.any(rows) or not np.any(cols):
+        # Blank canvas
+        arr = np.zeros((28, 28), dtype=np.float32)
+    else:
+        ymin, ymax = np.where(rows)[0][[0, -1]]
+        xmin, xmax = np.where(cols)[0][[0, -1]]
+        
+        # Crop to bounding box
+        cropped = raw_arr[ymin:ymax+1, xmin:xmax+1]
+        
+        # Scale to fit in 20x20 box (standard MNIST size)
+        h, w = cropped.shape
+        max_dim = max(h, w)
+        
+        scale = 20.0 / max_dim
+        new_w, new_h = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+        
+        cropped_img = Image.fromarray(cropped.astype(np.uint8))
+        scaled_img = cropped_img.resize((new_w, new_h), Image.LANCZOS)
+        scaled_arr = np.array(scaled_img, dtype=np.float32)
+        
+        # Center of mass
+        total_mass = scaled_arr.sum()
+        if total_mass > 0:
+            y_indices, x_indices = np.indices(scaled_arr.shape)
+            cy = (scaled_arr * y_indices).sum() / total_mass
+            cx = (scaled_arr * x_indices).sum() / total_mass
+        else:
+            cy, cx = new_h / 2.0, new_w / 2.0
+            
+        # Target center in 28x28 is (14, 14)
+        shift_x = 14.0 - cx
+        shift_y = 14.0 - cy
+        
+        paste_x = int(round(shift_x))
+        paste_y = int(round(shift_y))
+        
+        final_arr = np.zeros((28, 28), dtype=np.float32)
+        
+        start_y = max(0, paste_y)
+        start_x = max(0, paste_x)
+        end_y = min(28, paste_y + new_h)
+        end_x = min(28, paste_x + new_w)
+        
+        img_start_y = start_y - paste_y
+        img_start_x = start_x - paste_x
+        img_end_y = img_start_y + (end_y - start_y)
+        img_end_x = img_start_x + (end_x - start_x)
+        
+        final_arr[start_y:end_y, start_x:end_x] = scaled_arr[img_start_y:img_end_y, img_start_x:img_end_x]
+        
+        # Normalize [0, 255] -> [0.0, 1.0] and clip
+        arr = np.clip(final_arr / 255.0, 0.0, 1.0)
 
-    # 5. Normalize [0, 255] → [0.0, 1.0]
-    arr = np.array(img_28, dtype=np.float32) / 255.0
-
-    # 6. Invert: canvas has white bg + dark strokes; MNIST has black bg + bright strokes.
-    #    After inversion: strokes become bright (→ 1.0), background becomes dark (→ 0.0).
-    arr = 1.0 - arr
-
-    # 7. Clip to guard against any floating-point artefacts
-    arr = np.clip(arr, 0.0, 1.0)
-
-    # Blank check — warn but do NOT raise (the model can handle a blank input,
-    # it will just produce a nearly-uniform prediction distribution).
+    # Blank check — warn but do NOT raise
     if _is_blank(arr):
         logger.warning("Processed image appears blank — canvas may be empty.")
 
-    # 8. Build thumbnail PNG for frontend display
-    thumbnail_b64 = array_to_b64_png(arr)
+    # 5. Build thumbnail PNG for frontend display.
+    #    Re-invert so the thumbnail looks like ink on white paper
+    display_arr = 1.0 - arr
+    thumbnail_b64 = array_to_b64_png(display_arr)
+    model_input_b64 = array_to_b64_png(arr)
 
     return ProcessedImage(
         flat_array=arr.flatten(),           # (784,)
         grid_array=arr,                     # (28, 28)
         thumbnail_b64=thumbnail_b64,
+        model_input_b64=model_input_b64,
         original_size=original_size,
     )
 

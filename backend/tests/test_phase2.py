@@ -409,7 +409,7 @@ class TestDatasetAPI:
         """POST /preprocess with a valid canvas PNG must return 200."""
         b64 = _make_b64_png()
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-            r = await c.post("/api/v1/preprocess", json={"image_b64": b64})
+            r = await c.post("/api/v1/dataset/preprocess", json={"image_b64": b64})
         assert r.status_code == 200
         data = r.json()
         assert "thumbnail_b64" in data
@@ -421,7 +421,7 @@ class TestDatasetAPI:
         """flat_array values must be in [0.0, 1.0]."""
         b64 = _make_b64_png()
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-            r = await c.post("/api/v1/preprocess", json={"image_b64": b64})
+            r = await c.post("/api/v1/dataset/preprocess", json={"image_b64": b64})
         data = r.json()
         arr = data["flat_array"]
         assert min(arr) >= 0.0
@@ -431,21 +431,21 @@ class TestDatasetAPI:
         """A blank canvas must set is_blank=True."""
         b64 = _make_blank_b64_png()
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-            r = await c.post("/api/v1/preprocess", json={"image_b64": b64})
+            r = await c.post("/api/v1/dataset/preprocess", json={"image_b64": b64})
         assert r.status_code == 200
         assert r.json()["is_blank"] is True
 
     async def test_preprocess_invalid_b64(self):
         """Invalid base64 must return 422."""
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-            r = await c.post("/api/v1/preprocess", json={"image_b64": "not-valid-base64!!"})
+            r = await c.post("/api/v1/dataset/preprocess", json={"image_b64": "not-valid-base64!!"})
         assert r.status_code == 422
 
     async def test_preprocess_invalid_image_bytes(self):
         """Valid base64 of non-image bytes must return 422."""
         junk = base64.b64encode(b"not an image").decode()
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-            r = await c.post("/api/v1/preprocess", json={"image_b64": junk})
+            r = await c.post("/api/v1/dataset/preprocess", json={"image_b64": junk})
         assert r.status_code == 422
 
 

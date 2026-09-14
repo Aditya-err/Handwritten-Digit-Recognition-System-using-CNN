@@ -13,7 +13,7 @@ GET /dataset/sample
         digit  : int  (0–9) | "all"   (default "all")
         split  : "train" | "test"    (default "train")
 
-POST /preprocess
+POST /dataset/preprocess
     Accept a base64 PNG, return the 28×28 processed image and metadata.
     Used by the frontend to show the user what the NN actually receives.
 """
@@ -100,7 +100,8 @@ class PreprocessRequest(BaseModel):
 
 
 class PreprocessResponse(BaseModel):
-    thumbnail_b64: str          # 28×28 processed image for display
+    thumbnail_b64: str
+    model_input_b64: str          # 28×28 processed image for display
     flat_array: list[float]     # 784 normalised pixel values [0.0, 1.0]
     original_size: tuple[int, int]
     is_blank: bool
@@ -303,7 +304,7 @@ async def dataset_explorer_random(
     )
 
 
-@router.post("/preprocess", response_model=PreprocessResponse, tags=["Preprocessing"])
+@router.post("/dataset/preprocess", response_model=PreprocessResponse, tags=["Preprocessing"])
 async def preprocess_image(body: PreprocessRequest) -> PreprocessResponse:
     """
     Process a base64 PNG from the drawing canvas.
@@ -325,6 +326,7 @@ async def preprocess_image(body: PreprocessRequest) -> PreprocessResponse:
 
     return PreprocessResponse(
         thumbnail_b64=result.thumbnail_b64,
+        model_input_b64=result.model_input_b64,
         flat_array=arr.tolist(),
         original_size=result.original_size,
         is_blank=is_blank,

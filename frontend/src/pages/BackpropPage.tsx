@@ -98,6 +98,14 @@ export function BackpropPage({ onNavigate }: BackpropPageProps) {
       const prepData = await prepRes.json();
       const processedFlat = prepData.flat_array;
 
+      // Guard: reject blank drawings (all-zero flat array = empty canvas)
+      if (processedFlat.every((v: number) => v === 0)) {
+        setError('Canvas is empty — draw a digit first.');
+        setStep('IDLE');
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(API_BASE + '/api/v1/model/backprop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -385,9 +393,9 @@ export function BackpropPage({ onNavigate }: BackpropPageProps) {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+    <div className="flex flex-col lg:flex-row gap-8 w-full h-full pb-8">
       {/* Left Column: Input */}
-      <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+      <div className="w-full lg:w-[360px] shrink-0 space-y-6">
         <div>
           <h2 className="text-2xl font-bold mb-2">Backpropagation</h2>
           <p className="text-[var(--text-secondary)] text-sm mb-4">
