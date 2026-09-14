@@ -1,194 +1,133 @@
-# Digit Recognition + Interactive Neural Network Visualizer
+<div align="center">
+  <h1>🧠 Handwritten Digit Recognition System</h1>
+  <p><strong>An interactive, educational machine learning dashboard built from scratch to demystify neural networks.</strong></p>
 
-This project is an educational, interactive web application where users can draw handwritten digits and inspect exactly how neural networks process the image internally. By visualizing intermediate states, real gradients, and model architecture, it demystifies the "black box" of machine learning for beginners and students.
+  <p>
+    <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Vite%20%7C%20Tailwind-blue?style=flat-square" alt="Frontend" />
+    <img src="https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.10+-green?style=flat-square" alt="Backend" />
+    <img src="https://img.shields.io/badge/ML-NumPy%20%7C%20PyTorch-orange?style=flat-square" alt="ML" />
+  </p>
+</div>
 
-## Project Highlights
+<br />
 
-- Real MNIST digit recognition
-- NumPy neural network from scratch
-- Manual forward propagation
-- Manual backpropagation
-- Real gradient visualization
-- Interactive network visualization
-- Training dashboard
-- PyTorch CNN comparison
-- CNN feature-map visualization
-- Dataset explorer
-- Interactive learning section
-- Architecture sandbox
-- Dark/light theme
-- Responsive interface
-- FastAPI backend
-- React frontend
+Welcome to the **Interactive Neural Network Visualizer**. This project is not just a digit recognizer—it's an interactive laboratory designed to expose exactly how neural networks process information layer-by-layer, calculate gradients, and learn from data.
 
-## Demo / User Journey
+---
 
-This application is designed to be explored in a specific educational flow:
+## 📸 Screenshots
 
-1. **Dataset**: Understand the raw MNIST dataset, view the class distribution, and see how a 28x28 image is flattened into 784 numerical inputs.
-2. **Recognize**: Draw a digit on the canvas and see real-time side-by-side predictions from the NumPy Neural Network and the PyTorch CNN.
-3. **Network**: Visualize the architecture, weights, and biases of the NumPy Neural Network layer-by-layer.
-4. **Backprop**: Draw a digit, select a target class, and watch the math of backpropagation in real-time. Click specific weights to inspect their gradients and simulated updates.
-5. **Training**: Train the NumPy neural network live in your browser and monitor real-time epoch, batch, loss, and accuracy metrics.
-6. **CNN**: Watch how the CNN processes your drawing layer-by-layer through convolutions and max-pooling operations via interactive heatmaps.
-7. **Learn**: Read concise, interactive lessons covering machine learning fundamentals, tied directly to the visualizations.
-8. **Architecture**: Experiment with neural-network architecture concepts in a sandbox environment without modifying the production pretrained model.
+<p align="center">
+  <img src="Assets/Digit%20Recognition.png" alt="Digit Recognition" width="49%">
+  <img src="Assets/Network%20Visualizer.png" alt="Network Visualizer" width="49%">
+</p>
+<p align="center">
+  <img src="Assets/Model%20Compare.png" alt="Model Comparison" width="49%">
+  <img src="Assets/CNN%20feature%20Map.png" alt="CNN Feature Maps" width="49%">
+</p>
+<p align="center">
+  <img src="Assets/Training%20Dashboard.png" alt="Training Dashboard" width="49%">
+  <img src="Assets/Back-propagation.png" alt="Backpropagation" width="49%">
+</p>
+<p align="center">
+  <img src="Assets/Learn%20ML.png" alt="Learn ML" width="49%">
+  <img src="Assets/Architecture%20Editor.png" alt="Architecture Editor" width="49%">
+</p>
 
-## Screenshots
+---
 
-*Note: Screenshots can be added to this section after running the application locally.*
+## ✨ Key Features
 
-## Tech Stack
+- **🎨 Real-Time Digit Recognition**: Draw a digit (0-9) on the canvas and watch the model predict it instantly, complete with confidence scores and class probabilities.
+- **🔍 Interactive Network Visualizer**: Watch the forward pass animate in real-time. See precisely which neurons activate and which edges (weights) contribute positively (blue) or negatively (red) to the prediction.
+- **📐 Mathematical Backpropagation**: Step through the backpropagation algorithm. Click on individual weights to see their gradients and exactly how they update to reduce loss.
+- **📊 Live Training Dashboard**: Train the custom NumPy model directly in your browser. Configure hyperparameters (Epochs, Batch Size, Learning Rate) and watch the loss and accuracy metrics update in real-time.
+- **🧠 PyTorch CNN Comparison**: Compare the pure NumPy Feed-forward network against a production-grade PyTorch Convolutional Neural Network (CNN). Explore interactive heatmaps of the CNN's feature extraction layers.
+- **📚 Educational Sandbox**: Dive into the "Learn" and "Architecture" pages to experiment with neural network structures and read interactive lessons tied directly to the visualizers.
 
-### Frontend
-- **React** (with TypeScript)
-- **Vite**
-- **Tailwind CSS**
-- **Canvas/SVG** (for custom, fast heatmap rendering)
-- **Recharts** (for dataset and training metrics)
-- **Lucide React** (for icons)
+## 🛠️ Tech Stack
 
-### Backend
-- **Python 3.10+**
-- **FastAPI**
-- **NumPy**
-- **PyTorch**
+**Frontend:**
+- **React (TypeScript)**: UI architecture and state management.
+- **Vite**: Lightning-fast build tool.
+- **Tailwind CSS**: Styling and responsive design.
+- **Custom SVG & Canvas**: Highly optimized, custom-built visualizers for neural network structures.
 
-### Dataset
-- **MNIST** (Modified National Institute of Standards and Technology)
+**Backend:**
+- **FastAPI**: High-performance REST API.
+- **NumPy**: The core feed-forward neural network is built entirely from scratch using NumPy for maximum educational transparency.
+- **PyTorch**: Used for the baseline Convolutional Neural Network.
 
-## Architecture Documentation
+## 🏗️ Architecture
 
-```text
-User
- ↓
-React Frontend (Vite, TS)
- ↓
-FastAPI REST API
- ↓
-ML / Dataset Services
- ├── NumPy Neural Network
- ├── PyTorch CNN
- └── MNIST Dataset
-```
-
-**Responsibilities:**
-- **Frontend (React)**: Handles interaction, drawing, data visualization, charts, and educational presentation.
-- **Backend (Python)**: Handles image preprocessing, model inference, custom training logic, gradient computation, model state, and dataset operations.
-
-## Model Architecture
-
-### 1. NumPy Dense Network (Educational)
-Implemented manually using NumPy for educational transparency:
-- **Input**: 784
-- **Dense 1**: 784 → 128
-- **Activation 1**: ReLU
-- **Dense 2**: 128 → 64
-- **Activation 2**: ReLU
-- **Dense 3**: 64 → 10
-- **Output**: Softmax
+### 1. NumPy Dense Network (Built from scratch)
+- **Input**: 784 (28x28 flattened image)
+- **Hidden Layer 1**: 128 neurons (ReLU activation)
+- **Hidden Layer 2**: 64 neurons (ReLU activation)
+- **Output Layer**: 10 neurons (Softmax activation)
 
 ### 2. PyTorch CNN (Baseline)
 - **Input**: 1 × 28 × 28
-- **Conv2D 1**: 1 → 8 (Kernel 3x3)
-- **Activation**: ReLU
-- **MaxPool 1**: 2x2
-- **Conv2D 2**: 8 → 16 (Kernel 3x3)
-- **Activation**: ReLU
-- **MaxPool 2**: 2x2
-- **Flatten**: 16 × 7 × 7 = 784
-- **Linear**: 784 → 10
-- **Output**: LogSoftmax
+- **Conv2D 1**: 1 → 8 (Kernel 3x3) + ReLU + MaxPool(2x2)
+- **Conv2D 2**: 8 → 16 (Kernel 3x3) + ReLU + MaxPool(2x2)
+- **Linear**: 784 → 10 (LogSoftmax)
 
-## Mathematics
+## 🚀 Getting Started
 
-The application demonstrates the following core operations:
-
-- **Dense Layer**: `z = Wx + b`
-- **ReLU Activation**: `ReLU(z) = max(0, z)`
-- **Softmax**: `p_i = exp(z_i) / Σ exp(z_j)`
-- **Cross Entropy Loss**: `L = -Σ y_i log(p_i)`
-- **Output Gradient**: `dL/dz = p - y`
-- **Gradient Descent**: `W_new = W_old - η * dW`
-
-## Project Structure
-
-```text
-backend/
-  app/
-    api/        # FastAPI endpoints (dataset, model, cnn, health)
-    dataset/    # MNIST loader and cache
-    ml/         # NumPy Neural Network and PyTorch CNN definitions
-    preprocessing/ # Image processing utilities
-    schemas/    # Pydantic models for API validation
-  tests/        # Pytest suite
-  weights/      # Pretrained model artifacts
-
-frontend/
-  src/
-    components/ # Reusable UI, Canvas, Visualizers
-    hooks/      # React hooks
-    pages/      # Page components (Dataset, Recognize, Network, etc.)
-    services/   # API logic
-    types/      # TypeScript interfaces
-```
-
-## Local Setup
+Follow these instructions to run the project locally.
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 18+
+- Node.js (v18 or higher)
+- Python (v3.10 or higher)
 
 ### 1. Backend Setup
 
+Open a terminal and navigate to the backend directory:
+
 ```bash
 cd backend
+
+# Create a virtual environment
 python -m venv venv
 
-# On Windows:
+# Activate it
+# Windows:
 venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux:
 source venv/bin/activate
 
+# Install dependencies
 pip install -r requirements.txt
+
+# Start the FastAPI server
 uvicorn app.main:app --reload
 ```
-The FastAPI backend will start on `http://localhost:8000`.
+The backend API will run on `http://localhost:8000`.
 
 ### 2. Frontend Setup
 
-In a new terminal:
+Open a new terminal and navigate to the frontend directory:
+
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
+
+# Start the Vite development server
 npm run dev
 ```
-The frontend will start on `http://localhost:5173`. Open this URL in your browser.
+The frontend will run on `http://localhost:5173`. Open this URL in your browser to interact with the application.
 
-## Model / Weights Information
+## 🧪 Testing
 
-The repository includes pretrained artifacts in `backend/weights/`:
-- `model.npz`: NumPy network weights and biases.
-- `cnn_model.pt`: PyTorch CNN state dict.
+The project includes comprehensive test suites for the backend logic and frontend structure.
 
-These pretrained models allow inference and visualization to work out-of-the-box without requiring the user to train a model first. Custom training output generated in the browser is completely separate and will not overwrite these production model artifacts.
+- **Backend tests:** `cd backend && python -m pytest tests/`
+- **Frontend linter:** `cd frontend && npm run lint`
+- **Frontend type-check:** `cd frontend && npx tsc --noEmit`
 
-## Training Information
-
-The custom NumPy model supports live educational training within the browser. This training process uses the real MNIST dataset and generates real training metrics. The pretrained model is protected, and any custom training output remains separate, meaning your production application is always safe from destructive modifications.
-
-## Testing & Verification
-
-The project includes strict API validation, testing, and lifecycle management. Run these commands to verify the project status.
-
-### Backend Tests
-```bash
-python -m pytest backend/tests/
-```
-
-### Frontend Checks
-```bash
-cd frontend
-npm run lint
-npm run build
-```
+---
+<div align="center">
+  <i>Built to make the "black box" of Machine Learning visible, interactive, and understandable.</i>
+</div>

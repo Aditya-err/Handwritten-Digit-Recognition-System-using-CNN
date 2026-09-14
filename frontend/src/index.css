@@ -116,6 +116,21 @@ body {
     border-color: var(--accent);
   }
 
+  /* Form input field */
+  .input-field {
+    @apply rounded-lg px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:ring-offset-1;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  .input-field::placeholder {
+    color: var(--text-muted);
+  }
+  .input-field:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   /* Status badge */
   .badge-online  { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-400; }
   .badge-offline { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-red-500/15 text-red-400; }

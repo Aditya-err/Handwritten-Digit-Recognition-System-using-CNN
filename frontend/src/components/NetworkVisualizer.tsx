@@ -30,8 +30,8 @@ export function NetworkVisualizer({
   isInteractive = false
 }: NetworkVisualizerProps) {
   
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  // Fixed coordinates so neurons never jump when resized/inspected
+  const dimensions = { width: 1000, height: 600 };
 
   const [activeStep, setActiveStep] = useState<number>(isInteractive ? 6 : 0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -40,32 +40,21 @@ export function NetworkVisualizer({
   // 0: Idle/Input, 1: Dense 1 (z), 2: ReLU 1 (a), 3: Dense 2 (z), 4: ReLU 2 (a), 5: Dense 3 (z), 6: Softmax (a)
   const MAX_STEP = 6;
 
-  // Responsive Resizing
+  // 1.5-second auto-play timer after prediction
   useEffect(() => {
-    const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-          setDimensions({
-            width: entry.contentRect.width,
-            height: entry.contentRect.height
-          });
-        }
-      }
-    });
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    let timer: number;
+    if (intermediateStates && prediction !== null) {
+      setActiveStep(0);
+      setIsPlaying(false);
+      timer = window.setTimeout(() => {
+        setIsPlaying(true);
+      }, 1500);
+    } else {
+      setActiveStep(0);
+      setIsPlaying(false);
     }
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Auto-finish animation instantly in interactive mode
-  useEffect(() => {
-    if (isInteractive && intermediateStates) {
-      setActiveStep(6);
-    }
-  }, [intermediateStates, isInteractive]);
+    return () => clearTimeout(timer);
+  }, [intermediateStates, prediction]);
 
   useEffect(() => {
     let timer: number;
@@ -217,10 +206,10 @@ export function NetworkVisualizer({
       )}
 
       {/* SVG Canvas */}
-      <div ref={containerRef} className="flex-1 w-full h-full relative overflow-hidden bg-[var(--bg-primary)]">
+      <div className="flex-1 w-full h-full relative overflow-hidden bg-[var(--bg-primary)]">
         <svg 
-          width="100%"
-          height="100%"
+          viewBox="0 0 1000 600"
+          preserveAspectRatio="xMidYMid meet"
           className="w-full h-full absolute inset-0"
         >
           <g>
@@ -246,10 +235,18 @@ export function NetworkVisualizer({
                 
                 const contribution = sourceAct * weight;
                 
+                // Hide negligible edges
+                if (intermediateStates && activeStep >= 3 && Math.abs(contribution) < 0.05) {
+                  return null;
+                }
+                
                 // Color based on weight sign, opacity based on contribution magnitude
                 const strokeColor = weight > 0 ? '#3b82f6' : '#ef4444'; // Blue : Red
-                let opacity = 0.05 + Math.min(0.8, Math.abs(contribution));
-                if (!intermediateStates || activeStep < 3) opacity = Math.min(0.3, Math.abs(weight));
+                let opacity = 0.05 + Math.min(0.7, Math.abs(contribution));
+                if (!intermediateStates || activeStep < 3) opacity = Math.min(0.25, Math.abs(weight));
+                
+                // Keep stroke width subtle (max 1.4px)
+                const strokeWidth = Math.min(1.4, Math.max(0.6, opacity * 2));
                 
                 return (
                   <line 
@@ -258,7 +255,7 @@ export function NetworkVisualizer({
                     x2={LAYER_X.DENSE2} y2={getHiddenY(j, SAMPLED_HIDDEN_COUNT)} 
                     stroke={strokeColor} 
                     opacity={opacity} 
-                    strokeWidth={Math.max(0.5, opacity * 3)} 
+                    strokeWidth={strokeWidth} 
                   />
                 );
               })
@@ -278,12 +275,20 @@ export function NetworkVisualizer({
                 
                 const contribution = sourceAct * weight;
                 
+                // Hide negligible edges
+                if (intermediateStates && activeStep >= 5 && Math.abs(contribution) < 0.05) {
+                  return null;
+                }
+                
                 const strokeColor = weight > 0 ? '#3b82f6' : '#ef4444';
                 let opacity = 0.05 + Math.min(0.8, Math.abs(contribution));
-                if (!intermediateStates || activeStep < 5) opacity = Math.min(0.3, Math.abs(weight));
+                if (!intermediateStates || activeStep < 5) opacity = Math.min(0.25, Math.abs(weight));
                 
                 const isPredicted = j === prediction && activeStep >= 6;
-                if (isPredicted && contribution > 0) opacity = Math.min(1, opacity * 2);
+                if (isPredicted && contribution > 0) opacity = Math.min(0.9, opacity * 1.5);
+                
+                // Keep stroke width subtle (max 1.8px)
+                const strokeWidth = Math.min(1.8, Math.max(0.6, opacity * 2));
                 
                 return (
                   <line 
@@ -292,7 +297,7 @@ export function NetworkVisualizer({
                     x2={LAYER_X.OUTPUT} y2={getOutputY(j)} 
                     stroke={strokeColor} 
                     opacity={opacity} 
-                    strokeWidth={Math.max(1, opacity * 4)} 
+                    strokeWidth={strokeWidth} 
                   />
                 );
               })
