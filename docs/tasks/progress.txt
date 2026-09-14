@@ -1,0 +1,18 @@
+﻿## T001: Frontend Testing Infrastructure Setup
+**Status:** COMPLETED
+**Date:** 2026-09-14T19:42:00+05:30
+
+**What was done:**
+- Installed vitest, jsdom, @testing-library/react, @testing-library/jest-dom, and @types/d3 as devDependencies.
+- Updated vite.config.ts with Vitest test configuration (globals, jsdom environment, setupFiles, threads pool).
+- Added triple-slash reference for vitest/config types in vite.config.ts.
+- Added "test": "vitest run" script to package.json.
+- Created frontend/src/setupTests.ts to import jest-dom matchers.
+- Created frontend/src/setup.test.ts with a passing dummy test.
+- Used pool: 'threads' instead of default 'forks' to work around Vitest worker timeout on Windows with spaces in path.
+
+**Verification:**
+- 
+pm run test runs successfully: 1 test file, 1 test passed (exit code 0).
+- Pre-existing build errors (unused imports in NetworkVisualizer.tsx, ComparePage.tsx, DigitRecognitionPage.tsx, NetworkPage.tsx) confirmed NOT caused by T001 changes.
+- Existing dev/build scripts unmodified in behavior.
