@@ -16,3 +16,25 @@
 pm run test runs successfully: 1 test file, 1 test passed (exit code 0).
 - Pre-existing build errors (unused imports in NetworkVisualizer.tsx, ComparePage.tsx, DigitRecognitionPage.tsx, NetworkPage.tsx) confirmed NOT caused by T001 changes.
 - Existing dev/build scripts unmodified in behavior.
+
+## T002: Frontend Service and Utility Tests
+**Status:** COMPLETED
+**Date:** 2026-09-14T19:45:00+05:30
+
+**What was done:**
+- Created rontend/src/services/api.test.ts with 6 unit tests covering:
+  - etchHealth happy path: verifies correct URL construction and JSON parsing.
+  - equest wrapper error handling: ApiError thrown with server-provided detail on non-2xx.
+  - equest wrapper error handling: generic { error: 'HTTP 502' } thrown when error body is not valid JSON.
+  - equest wrapper: network errors (fetch rejection) propagate correctly.
+  - BASE_URL normalisation: strips trailing /api/v1 from VITE_API_URL to prevent duplication.
+  - BASE_URL normalisation: strips trailing /api/v1/ (with slash) from VITE_API_URL.
+- Used dynamic import() with i.resetModules() to re-evaluate module-level BASE_URL per test.
+- Mocked global etch via i.stubGlobal.
+- Did NOT modify pi.ts (constraint respected).
+
+**Verification:**
+- 
+pm run test -- api.test.ts: 6 tests passed (exit code 0).
+- 
+pm run test (full suite): 7 tests passed across 2 files (exit code 0).
