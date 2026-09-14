@@ -7,6 +7,15 @@ Architecture:
 - Phase 1: only the /health endpoint is active
 """
 import os
+import logging
+
+# Configure structured logging with timestamps
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
 # Workaround for OMP: Error #15 when NumPy and PyTorch are both loaded on Windows.
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
