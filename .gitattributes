@@ -1,0 +1,2 @@
+# Ignore Jupyter Notebooks in GitHub language statistics
+*.ipynb linguist-detectable=false
