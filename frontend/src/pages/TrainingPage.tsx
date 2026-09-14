@@ -3,6 +3,8 @@ import { BarChart2, Play, Square, Settings2, Activity, Info, AlertTriangle } fro
 import { TrainingCharts } from '../components/TrainingCharts';
 import type { TrainStatusResponse } from '../types/nn';
 
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/v1\/?$/, '');
+
 export function TrainingPage() {
   // Form state
   const [epochs, setEpochs] = useState(5);
@@ -22,7 +24,7 @@ export function TrainingPage() {
 
     const fetchStatus = async () => {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/model/status');
+        const res = await fetch(API_BASE + '/api/v1/model/status');
         if (res.ok) {
           const data = await res.json();
           setStatus(data);
@@ -48,7 +50,7 @@ export function TrainingPage() {
   const handleStart = async () => {
     setError(null);
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/model/train', {
+      const res = await fetch(API_BASE + '/api/v1/model/train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,7 +77,7 @@ export function TrainingPage() {
 
   const handleStop = async () => {
     try {
-      await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/v1/model/stop', { method: 'POST' });
+      await fetch(API_BASE + '/api/v1/model/stop', { method: 'POST' });
     } catch (e) {
       console.error(e);
     }

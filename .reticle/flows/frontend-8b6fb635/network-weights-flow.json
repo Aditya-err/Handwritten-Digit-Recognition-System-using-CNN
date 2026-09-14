@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "name": "network-weights-flow",
+  "projectId": "frontend-8b6fb635",
+  "createdAt": 1789375051997,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Network"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "net": {
+          "urlContains": "/api/v1/model/weights"
+        }
+      }
+    }
+  ],
+  "startPath": "/",
+  "intent": "Navigating to Network tab fetches model weights from backend",
+  "intentId": "flow:network-weights-flow"
+}

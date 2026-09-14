@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "intents": {
+    "navigation-dataset": {
+      "id": "navigation-dataset",
+      "statement": "Navigating to the Dataset tab renders the MNIST Dataset Explorer interface with class distribution",
+      "state": "proved",
+      "declaredAt": 1789374140227,
+      "binding": {
+        "kind": "text",
+        "contains": "Dataset"
+      },
+      "surface": {
+        "files": [
+          "src/components/layout/Navbar.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789374211797",
+        "grade": "presence",
+        "at": 1789374211797
+      }
+    },
+    "navigation-learn": {
+      "id": "navigation-learn",
+      "statement": "Navigating to the Learn tab displays educational ML concept lessons and explanations",
+      "state": "proved",
+      "declaredAt": 1789374140227,
+      "binding": {
+        "kind": "text",
+        "contains": "1. MNIST & Data"
+      },
+      "surface": {
+        "files": [
+          "src/components/layout/Navbar.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789374201179",
+        "grade": "presence",
+        "at": 1789374201179
+      }
+    },
+    "inline:clicking-network-tab-successfully-requests-model-dcd15c8b": {
+      "id": "inline:clicking-network-tab-successfully-requests-model-dcd15c8b",
+      "statement": "Clicking Network tab successfully requests model weights from backend",
+      "state": "proved",
+      "declaredAt": 1789374870964,
+      "binding": {
+        "kind": "net",
+        "urlContains": "/api/v1/model/weights"
+      },
+      "surface": {
+        "files": [
+          "src/components/layout/Navbar.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789374871644",
+        "grade": "net",
+        "at": 1789374871644
+      }
+    },
+    "inline:user-clicks-learn-tab-to-open-machine-learning-e-a3ff6167": {
+      "id": "inline:user-clicks-learn-tab-to-open-machine-learning-e-a3ff6167",
+      "statement": "User clicks Learn tab to open machine learning educational lessons",
+      "state": "proved",
+      "declaredAt": 1789375007052,
+      "binding": {
+        "kind": "text",
+        "contains": "1. MNIST & Data"
+      },
+      "surface": {
+        "files": [
+          "src/components/layout/Navbar.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789375007356",
+        "grade": "presence",
+        "at": 1789375007356
+      }
+    },
+    "flow:navigation-learn": {
+      "id": "flow:navigation-learn",
+      "statement": "Navigating to Learn section opens the educational ML lessons",
+      "state": "declared",
+      "declaredAt": 1789375022997,
+      "surface": {
+        "flow": "navigation-learn"
+      }
+    },
+    "inline:navigating-to-network-tab-fetches-model-weights-5f1c2c1c": {
+      "id": "inline:navigating-to-network-tab-fetches-model-weights-5f1c2c1c",
+      "statement": "Navigating to Network tab fetches model weights from backend",
+      "state": "proved",
+      "declaredAt": 1789375036759,
+      "binding": {
+        "kind": "net",
+        "urlContains": "/api/v1/model/weights"
+      },
+      "surface": {
+        "files": [
+          "src/components/layout/Navbar.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789375037748",
+        "grade": "net",
+        "at": 1789375037748
+      }
+    },
+    "flow:network-weights-flow": {
+      "id": "flow:network-weights-flow",
+      "statement": "Navigating to Network tab fetches model weights from backend",
+      "state": "bound",
+      "declaredAt": 1789375052001,
+      "surface": {
+        "flow": "network-weights-flow"
+      },
+      "binding": {
+        "flow": "network-weights-flow"
+      }
+    }
+  }
+}
