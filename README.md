@@ -17,22 +17,24 @@ Welcome to the **Interactive Neural Network Visualizer**. This project is not ju
 
 ## 📸 Screenshots
 
-<p align="center">
-  <img src="Assets/Digit%20Recognition.png" alt="Digit Recognition" width="49%">
-  <img src="Assets/Network%20Visualizer.png" alt="Network Visualizer" width="49%">
-</p>
-<p align="center">
-  <img src="Assets/Model%20Compare.png" alt="Model Comparison" width="49%">
-  <img src="Assets/CNN%20feature%20Map.png" alt="CNN Feature Maps" width="49%">
-</p>
-<p align="center">
-  <img src="Assets/Training%20Dashboard.png" alt="Training Dashboard" width="49%">
-  <img src="Assets/Back-propagation.png" alt="Backpropagation" width="49%">
-</p>
-<p align="center">
-  <img src="Assets/Learn%20ML.png" alt="Learn ML" width="49%">
-  <img src="Assets/Architecture%20Editor.png" alt="Architecture Editor" width="49%">
-</p>
+<table align="center">
+  <tr>
+    <td width="50%"><img src="Assets/Digit%20Recognition.png" alt="Digit Recognition" width="100%"></td>
+    <td width="50%"><img src="Assets/Network%20Visualizer.png" alt="Network Visualizer" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="Assets/Model%20Compare.png" alt="Model Comparison" width="100%"></td>
+    <td width="50%"><img src="Assets/CNN%20feature%20Map.png" alt="CNN Feature Maps" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="Assets/Training%20Dashboard.png" alt="Training Dashboard" width="100%"></td>
+    <td width="50%"><img src="Assets/Back-propagation.png" alt="Backpropagation" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="Assets/Learn%20ML.png" alt="Learn ML" width="100%"></td>
+    <td width="50%"><img src="Assets/Architecture%20Editor.png" alt="Architecture Editor" width="100%"></td>
+  </tr>
+</table>
 
 ---
 
