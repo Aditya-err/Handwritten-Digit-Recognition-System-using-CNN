@@ -126,6 +126,8 @@ export function DrawingCanvas({ onPredict, onClear, disabled, autoPredict = fals
           ref={canvasRef}
           width={320}
           height={320}
+          aria-label="Drawing canvas for digit recognition"
+          role="img"
           className="block w-full h-full"
           onMouseDown={startDrawing}
           onMouseUp={stopDrawing}
@@ -140,6 +142,7 @@ export function DrawingCanvas({ onPredict, onClear, disabled, autoPredict = fals
         <button 
           onClick={clear} 
           disabled={!hasContent || disabled}
+          aria-label="Clear canvas"
           className="flex-1 btn-secondary flex items-center justify-center gap-2 py-2"
         >
           <Eraser size={16} /> Clear
@@ -148,6 +151,7 @@ export function DrawingCanvas({ onPredict, onClear, disabled, autoPredict = fals
           <button 
             onClick={submit} 
             disabled={!hasContent || disabled}
+            aria-label="Predict digit"
             className="flex-1 btn-primary flex items-center justify-center gap-2 py-2"
           >
             <Send size={16} /> Predict

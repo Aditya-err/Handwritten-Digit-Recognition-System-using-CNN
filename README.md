@@ -45,6 +45,22 @@ Welcome to the **Interactive Neural Network Visualizer**. This project is not ju
 - **🧠 PyTorch CNN Comparison**: Compare the pure NumPy Feed-forward network against a production-grade PyTorch Convolutional Neural Network (CNN). Explore interactive heatmaps of the CNN's feature extraction layers.
 - **📚 Educational Sandbox**: Dive into the "Learn" and "Architecture" pages to experiment with neural network structures and read interactive lessons tied directly to the visualizers.
 
+## 📓 Jupyter ML Lab
+
+The project includes professional Jupyter notebooks that explain the complete machine-learning pipeline behind the application. These notebooks serve as interactive documentation:
+
+1. `01_MNIST_and_Preprocessing.ipynb`
+2. `02_Neural_Network_From_Scratch.ipynb`
+3. `03_Backpropagation_and_Training.ipynb`
+4. `04_CNN_and_Feature_Maps.ipynb`
+5. `05_Final_Digit_Recognition.ipynb`
+
+**Note on Architecture:**
+- These notebooks are **educational/documentation artifacts**.
+- The production application remains **Python + FastAPI + React**.
+- The notebooks **do not replace** the production backend or act as dependencies.
+- They use the **exact same model concepts and architectures** present in the real application.
+
 ## 🛠️ Tech Stack
 
 **Frontend:**
