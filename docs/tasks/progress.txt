@@ -38,3 +38,29 @@ pm run test runs successfully: 1 test file, 1 test passed (exit code 0).
 pm run test -- api.test.ts: 6 tests passed (exit code 0).
 - 
 pm run test (full suite): 7 tests passed across 2 files (exit code 0).
+
+## T003: DrawingCanvas Component Accessibility & Testing
+**Status:** COMPLETED
+**Date:** 2026-09-14T19:49:00+05:30
+
+**What was done:**
+- Added ria-label="Drawing canvas for digit recognition" and ole="img" to the <canvas> element.
+- Added ria-label="Clear canvas" to the Clear button.
+- Added ria-label="Predict digit" to the Predict button.
+- Created rontend/src/components/DrawingCanvas.test.tsx with 8 unit tests covering:
+  - Canvas renders with the correct aria-label.
+  - Clear button has an accessible label.
+  - Predict button has an accessible label (when autoPredict=false).
+  - Predict button is hidden when autoPredict=true.
+  - Clear button is disabled when canvas has no content.
+  - onClear callback fires when Clear is clicked after drawing.
+  - onPredict callback fires with base64 data when Predict is clicked after drawing.
+  - Buttons are disabled when disabled prop is true.
+- Mocked canvas getContext, toDataURL, and getBoundingClientRect for jsdom compatibility.
+- Did NOT alter canvas drawing logic, stroke width, or coordinate scaling math (constraint respected).
+
+**Verification:**
+- 
+pm run test -- DrawingCanvas.test.tsx: 8 tests passed (exit code 0).
+- 
+pm run test (full suite): 15 tests passed across 3 files (exit code 0).
